@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2-ноненаль: что это, кто открыл в Shiseido, как измеряли, мифы, танины коры дуба</title>
 <meta name="description" content="Полный научный разбор 1в1 с Тильды: формула C9H16O, история открытия Haze et al. 2001 Shiseido, как собирали запах марлей и GC-MS, почему не смывается водой, танины хурмы и коры дуба 10-20%, мифы и таблица фактов.">
-<link rel="canonical" href="https://zapahstarosti.ru/chto-takoe-2-nonenal/"><link rel="stylesheet" href="/style.css">
+<link rel="canonical" href="https://zapahstarosti.ru/chto-takoe-2-nonenal/"><link rel="stylesheet" href="/style.css?v=5">
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -178,4 +178,22 @@
 <p class="small muted sans">Источники: <a href="https://pubchem.ncbi.nlm.nih.gov/compound/5283335" target="_blank">PubChem CID 5283335</a>, <a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C18829566&Mask=2000" target="_blank">NIST</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/11286617/" target="_blank">Haze et al., 2001 PubMed 11286617</a>, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2865286/" target="_blank">PMC2865286</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/27362995/" target="_blank">GC-MS 27362995</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/37447706/" target="_blank">сенсоры 37447706</a>, <a href="https://cir.nii.ac.jp/crid/1361418519249231744" target="_blank">cir.nii.ac.jp про полиэстер vs хлопок</a>, <a href="https://www.nur.kz/health/healthy-lifestyle/1790820-kora-duba-lecebnye-svojstva-primenenie-recepty/" target="_blank">кора дуба 10-20% танинов</a>, <a href="https://www.kp.ru/doctor/narodnaya-meditsina/kora-duba/" target="_blank">кора дуба 8.20%</a>. Обновлено 23.08.2026. При поддержке Letocosmetics.</p>
 </div></main>
 <footer class="footer"><div class="container"><div class="content small">© 2026 • <a href="/">Главная</a> • <a href="/o-proekte/">О проекте</a></div></div></footer>
+
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+
 </body></html>

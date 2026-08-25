@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Карта Осетии: где собираем кору дуба для мыла — от Владикавказа до Цейского ущелья</title>
 <meta name="description" content="Интерактивная карта сбора коры дуба и трав в горах Северной Осетии для мыла с танинами. Куртатинское ущелье, Цей, Дигория — истории, высота, почему именно там.">
-<link rel="canonical" href="https://zapahstarosti.ru/karta-osetii/"><link rel="stylesheet" href="/style.css">
+<link rel="canonical" href="https://zapahstarosti.ru/karta-osetii/"><link rel="stylesheet" href="/style.css?v=5">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
@@ -119,4 +119,22 @@ points.forEach(p=>{
   L.marker([p.lat, p.lng]).addTo(map).bindPopup("<b>"+p.title+"</b><br>"+p.desc);
 });
 </script>
+
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+
 </body></html>

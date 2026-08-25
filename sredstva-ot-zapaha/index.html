@@ -4,7 +4,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Средства от запаха: что нейтрализует, а что маскирует — танины коры дуба vs хурма</title>
 <meta name="description" content="Разбор средств: танины японской хурмы, танины коры дуба, дезодоранты, сорбенты, очистители. Что работает, что маскирует. И наше мыло на коре дуба.">
-<link rel="canonical" href="https://zapahstarosti.ru/sredstva-ot-zapaha/"><link rel="stylesheet" href="/style.css"><!-- Yandex.Metrika counter -->
+<link rel="canonical" href="https://zapahstarosti.ru/sredstva-ot-zapaha/"><link rel="stylesheet" href="/style.css?v=5"><!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}
@@ -120,4 +120,22 @@
 <p><a href="/">← На главную</a></p>
 </section></main>
 <footer class="footer"><div class="container">© 2026</div></footer>
+
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+
 </body></html>

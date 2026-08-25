@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Лекарства и запах тела — может ли причина быть медицинской</title>
 <meta name="description" content="Некоторые лекарства и состояния меняют запах тела. Когда обсудить с врачом, а не маскировать. Без самодиагностики.">
-<link rel="canonical" href="https://zapahstarosti.ru/lekarstva-i-zapah/"><link rel="stylesheet" href="/style.css"><!-- Yandex.Metrika counter -->
+<link rel="canonical" href="https://zapahstarosti.ru/lekarstva-i-zapah/"><link rel="stylesheet" href="/style.css?v=5"><!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}
@@ -96,4 +96,22 @@
 <li>Раз в 3 месяца — замена текстиля который удерживает запах</li>
 </ul>
 
-</section></main></body></html>
+</section></main>
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+
+</body></html>

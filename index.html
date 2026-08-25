@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Запах старости: что это, откуда берётся и как уменьшить</title>
 <meta name="description" content="Научно-практический ресурс о возрастных изменениях запаха тела, текстиля и дома. Безопасные способы проверки источника и ухода без стыда и опасных советов.">
-<link rel="canonical" href="https://zapahstarosti.ru/"><link rel="stylesheet" href="/style.css">
+<link rel="canonical" href="https://zapahstarosti.ru/"><link rel="stylesheet" href="/style.css?v=5">
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -158,4 +158,22 @@
 </div>
 </main>
 <footer class="footer"><div class="container"><div class="content small">© 2026 запахстарости.ru • <a href="/o-proekte/">О проекте</a> • <a href="/sitemap.xml">Карта</a><br>Материалы носят информационный характер и не заменяют консультацию врача. При поддержке Letocosmetics.</div></div></footer>
+
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+
 </body></html>

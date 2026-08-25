@@ -4,7 +4,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Как убрать запах с дивана и мягкой мебели — таблица по тканям, 4 ошибки</title>
 <meta name="description" content="Пошагово как убрать запах с дивана: пылесос, чехлы, тест на незаметном участке, сушка. Таблица для велюра, шенилла, кожи. Когда вызывать профи.">
-<link rel="canonical" href="https://zapahstarosti.ru/kak-ubrat-zapah-s-divana/"><link rel="stylesheet" href="/style.css">
+<link rel="canonical" href="https://zapahstarosti.ru/kak-ubrat-zapah-s-divana/"><link rel="stylesheet" href="/style.css?v=5">
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -126,4 +126,22 @@
 <p>Дальше: <a href="/zapah-v-kvartire/">карта квартиры</a> • <a href="/kak-ubrat-zapah-s-matrasa/">матрас</a> • <a href="/sredstva-ot-zapaha/">что нейтрализует</a></p>
 </div></main>
 <footer class="footer"><div class="container"><div class="content small">© 2026</div></div></footer>
+
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+
 </body></html>
