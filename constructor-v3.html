@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Конструктор v3 — простой</title>
+<link rel="stylesheet" href="/style.css?v=6">
+<style>
+body{font-family:-apple-system, sans-serif; background:#F6F9FF}
+.box{background:white; border:1px solid #DCE8F5; border-radius:12px; padding:16px; margin:12px 0}
+.toolbar{display:flex; gap:8px; flex-wrap:wrap; padding:10px; background:#EEF4FF; border-radius:10px; position:sticky; top:0; z-index:10}
+.toolbar button{border:1px solid #DCE8F5; background:white; border-radius:8px; padding:7px 11px; font-size:12px; cursor:pointer}
+#editor{border:1px solid #DCE8F5; border-radius:12px; padding:16px; min-height:300px; background:white; outline:none}
+input, select, textarea{width:100%; padding:9px 11px; border:1px solid #DCE8F5; border-radius:8px; font-size:13px; margin:4px 0}
+</style>
+</head><body>
+<div class="container" style="max-width:900px; padding:18px">
+<h1 class="sans" style="font-size:22px">Конструктор v3 — самый простой</h1>
+<p class="small muted">Выбери статью — откроется прямо с сайта без токена. Токен нужен только для кнопки Сохранить на сайт.</p>
+
+<div class="box sans">
+<input id="owner" value="ooppanki2021-hash">
+<input id="repo" value="zapahstarosti">
+<input id="branch" value="main">
+<input id="token" type="password" placeholder="Вставь токен ghp_... только для сохранения">
+<select id="pageSelect">
+<option value="">— выбери —</option>
+<option value="chto-takoe-2-nonenal">2-ноненаль</option>
+<option value="kak-otlichit-istochnik-zapakha">Диагностика</option>
+<option value="ubrat-zapah">Тело</option>
+<option value="zapah-v-kvartire">Квартира</option>
+<option value="kak-ubrat-zapah-s-divana">Диван</option>
+<option value="kak-ubrat-zapah-s-matrasa">Матрас</option>
+<option value="kak-ubrat-zapah-iz-shkafa">Шкаф</option>
+<option value="kak-ubrat-zapah-v-stiralnoj-mashine">Стиралка</option>
+<option value="sredstva-ot-zapaha">Средства</option>
+<option value="o-proekte">О проекте</option>
+</select>
+<button onclick="loadSimple()" style="margin-top:8px">Открыть</button>
+<div id="status" class="small" style="margin-top:8px; color:#5A7A9A"></div>
+</div>
+
+<div class="box">
+<div class="toolbar sans">
+<button onclick="exec('formatBlock','h2')">H2</button>
+<button onclick="exec('formatBlock','h3')">H3</button>
+<button onclick="exec('bold')">Жирный</button>
+<button onclick="exec('insertUnorderedList')">Список</button>
+<button onclick="addLink()">Ссылка</button>
+</div>
+<div id="editor" contenteditable="true"><p>Выбери статью и нажми Открыть</p></div>
+</div>
+
+<div class="box sans">
+<input id="title" placeholder="Title">
+<textarea id="desc" rows="2" placeholder="Description"></textarea>
+<input id="h1" placeholder="H1">
+</div>
+
+<button class="btn" onclick="save()" style="background:#5A7A9A">💾 Сохранить на сайт</button>
+<button class="btn-light" onclick="download()">Скачать</button>
+
+</div>
+<script>
+function exec(c,v){ if(v) document.execCommand(c,false,v); else document.execCommand(c,false,null); }
+function addLink(){ let u=prompt("URL:"); if(u) document.execCommand('createLink',false,u); }
+let currentSha=null, currentSlug=null;
+
+async function loadSimple(){
+  let slug=document.getElementById('pageSelect').value;
+  if(!slug){ alert("Выбери"); return; }
+  document.getElementById('status').textContent="Загружаю "+slug+"...";
+  try{
+    // грузим с гитхаба raw без парсинга — самый надежный
+    let owner=document.getElementById('owner').value;
+    let repo=document.getElementById('repo').value;
+    let branch=document.getElementById('branch').value||'main';
+    let token=document.getElementById('token').value;
+    let headers={};
+    if(token) headers.Authorization=`token ${token}`;
+    let res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`, {headers});
+    if(!res.ok) throw new Error("GitHub API: "+await res.text());
+    let data=await res.json();
+    currentSha=data.sha;
+    currentSlug=slug;
+    // decode base64 correctly for UTF-8
+    let binary = atob(data.content);
+    let bytes = new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+    let html = new TextDecoder().decode(bytes);
+    // extract content between <div class="content" and footer
+    let m = html.match(/<div class="content"[^>]*>([\s\S]*?)<\/div>\s*<\/main>/);
+    let inner = m ? m[1] : html;
+    document.getElementById('editor').innerHTML = inner;
+    let tm = html.match(/<title>(.*?)<\/title>/);
+    if(tm) document.getElementById('title').value=tm[1];
+    let dm = html.match(/name="description" content="(.*?)"/);
+    if(dm) document.getElementById('desc').value=dm[1];
+    let h1m = html.match(/<h1>(.*?)<\/h1>/);
+    if(h1m) document.getElementById('h1').value=h1m[1].replace(/<[^>]+>/g,'');
+    document.getElementById('status').textContent="Открыто: "+slug;
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка: "+e.message;
+    console.error(e);
+  }
+}
+
+function build(){
+  let slug=currentSlug||document.getElementById('pageSelect').value||'novaya';
+  let title=document.getElementById('title').value||'Новая';
+  let desc=document.getElementById('desc').value||'';
+  let h1=document.getElementById('h1').value||title;
+  let body=document.getElementById('editor').innerHTML;
+  return `<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="yandex-verification" content="e3e7231de3258122" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${desc}">
+<link rel="canonical" href="https://zapahstarosti.ru/${slug}/"><link rel="stylesheet" href="/style.css?v=6">
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111871686', 'ym');
+    ym(111871686, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head><body>
+<header class="header"><div class="container header-inner">
+<a class="logo" href="/">запах <em>старости</em>.ru</a>
+<nav class="nav sans">
+<a href="/">Главная</a>
+<a href="/kak-otlichit-istochnik-zapakha/">Диагностика</a>
+<a href="/chto-takoe-2-nonenal/">2-ноненаль</a>
+<a href="/ubrat-zapah/">Тело</a>
+<a href="/zapah-v-kvartire/">Дом</a>
+<a href="/sredstva-ot-zapaha/">Средства</a>
+<a href="/o-proekte/">О проекте</a>
+</nav>
+</div></header>
+<main class="container"><div class="content" style="padding-top:48px">
+<h1>${h1}</h1>
+${body}
+<p class="small muted sans">Обновлено 23.08.2026.</p>
+</div></main>
+<footer class="footer"><div class="container"><div class="content small">© 2026</div></div></footer>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a30b41b59d8ff97e',t:'MTc4NzY2NzgyOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>`;
+}
+
+async function save(){
+  let owner=document.getElementById('owner').value;
+  let repo=document.getElementById('repo').value;
+  let branch=document.getElementById('branch').value||'main';
+  let token=document.getElementById('token').value;
+  let slug=currentSlug||document.getElementById('pageSelect').value;
+  if(!token||!slug){ alert("Нужен токен и страница"); return; }
+  let full=build();
+  let b64=btoa(unescape(encodeURIComponent(full)));
+  document.getElementById('status').textContent="Сохраняю...";
+  try{
+    if(!currentSha){
+      let r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
+      if(r.ok){ let d=await r.json(); currentSha=d.sha; }
+    }
+    let body={message:`update ${slug}`, content:b64, branch:branch};
+    if(currentSha) body.sha=currentSha;
+    let res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`,{method:"PUT", headers:{Authorization:`token ${token}`, "Content-Type":"application/json"}, body:JSON.stringify(body)});
+    if(!res.ok) throw new Error(await res.text());
+    let data=await res.json();
+    currentSha=data.content.sha;
+    document.getElementById('status').textContent="✅ Сохранено! https://zapahstarosti.ru/"+slug+"/";
+  }catch(e){ document.getElementById('status').textContent="Ошибка: "+e.message; }
+}
+function download(){
+  let full=build();
+  let blob=new Blob([full],{type:'text/html'});
+  let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
+}
+</script>
+</body></html>
