@@ -110,31 +110,68 @@ async function loadFromGitHub(){
   let branch=document.getElementById('branch').value.trim()||'main';
   let token=document.getElementById('token').value.trim();
   let slug=document.getElementById('pageSelect').value.trim();
-  if(!owner||!repo||!token||!slug){ alert("Заполни owner, repo, token и выбери страницу"); return; }
-  document.getElementById('status').textContent="Загружаю "+slug+"...";
+  if(!slug){ alert("Выбери страницу"); return; }
+  document.getElementById('status').textContent="Загружаю "+slug+" с сайта...";
   try{
-    let res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`, {
-      headers:{Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json"}
-    });
-    if(!res.ok){ let t=await res.text(); throw new Error(t); }
-    let data = await res.json();
-    currentSha = data.sha;
-    currentSlug = slug;
-    let content = atob(data.content);
-    // try to extract <div class="content">...</div> inner
-    let m = content.match(/<div class="content"[^>]*>([\s\S]*?)<p class="small muted/);
-    let inner = m ? m[1] : content;
+    // 1. Пробуем загрузить прямо с сайта без токена — для чтения токен не нужен
+    let siteRes = await fetch(`https://zapahstarosti.ru/${slug}/`);
+    if(!siteRes.ok) throw new Error("Не удалось загрузить с сайта, пробую через GitHub API");
+    let siteHtml = await siteRes.text();
+    let m = siteHtml.match(/<div class="content"[^>]*>([\s\S]*?)<p class="small muted/);
+    let inner = m ? m[1] : siteHtml;
     document.getElementById('editor').innerHTML = inner;
-    // try extract title/h1/desc
-    let tm = content.match(/<title>(.*?)<\/title>/);
+    let tm = siteHtml.match(/<title>(.*?)<\/title>/);
     if(tm) document.getElementById('title').value = tm[1];
-    let dm = content.match(/<meta name="description" content="(.*?)"/);
+    let dm = siteHtml.match(/<meta name="description" content="(.*?)"/);
     if(dm) document.getElementById('desc').value = dm[1];
-    let h1m = content.match(/<h1>(.*?)<\/h1>/);
+    let h1m = siteHtml.match(/<h1>(.*?)<\/h1>/);
     if(h1m) document.getElementById('h1').value = h1m[1].replace(/<[^>]+>/g,'');
-    document.getElementById('status').textContent="Открыто: "+slug+" sha="+currentSha.substring(0,7);
+    currentSlug = slug;
+    // теперь получим sha для сохранения — для этого уже нужен токен
+    if(token){
+      try{
+        let res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`, {
+          headers:{Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json"}
+        });
+        if(res.ok){
+          let data = await res.json();
+          currentSha = data.sha;
+          document.getElementById('status').textContent="Открыто с сайта: "+slug+" (sha "+currentSha.substring(0,7)+") — можно сохранять";
+        } else {
+          document.getElementById('status').textContent="Открыто с сайта: "+slug+" — для сохранения введи токен";
+        }
+      }catch(e){
+        document.getElementById('status').textContent="Открыто с сайта: "+slug+" — для сохранения введи токен";
+      }
+    } else {
+      document.getElementById('status').textContent="Открыто с сайта: "+slug+" — введи токен чтобы сохранить на сайт";
+    }
   }catch(e){
-    document.getElementById('status').textContent="Ошибка: "+e.message;
+    // fallback — через GitHub API если сайт не отдал
+    document.getElementById('status').textContent="Пробую через GitHub API...";
+    try{
+      if(!token){ throw new Error("Введи токен для загрузки через API"); }
+      let res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`, {
+        headers:{Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json"}
+      });
+      if(!res.ok){ let t=await res.text(); throw new Error(t); }
+      let data = await res.json();
+      currentSha = data.sha;
+      currentSlug = slug;
+      let content = atob(data.content);
+      let m = content.match(/<div class="content"[^>]*>([\s\S]*?)<p class="small muted/);
+      let inner = m ? m[1] : content;
+      document.getElementById('editor').innerHTML = inner;
+      let tm = content.match(/<title>(.*?)<\/title>/);
+      if(tm) document.getElementById('title').value = tm[1];
+      let dm = content.match(/<meta name="description" content="(.*?)"/);
+      if(dm) document.getElementById('desc').value = dm[1];
+      let h1m = content.match(/<h1>(.*?)<\/h1>/);
+      if(h1m) document.getElementById('h1').value = h1m[1].replace(/<[^>]+>/g,'');
+      document.getElementById('status').textContent="Открыто через API: "+slug+" sha="+currentSha.substring(0,7);
+    }catch(e2){
+      document.getElementById('status').textContent="Ошибка: "+e2.message;
+    }
   }
 }
 

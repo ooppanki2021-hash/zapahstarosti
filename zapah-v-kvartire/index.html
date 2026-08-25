@@ -74,8 +74,22 @@
 <a href="/faq/">FAQ — 20 ответов</a>
 </div>
 </div>
+<a href="/constructor-v2.html" id="adminLink" style="display:none; color:#7A9AB8; border:1px dashed #DCE8F5; padding:4px 10px; border-radius:999px">Конструктор</a>
 </nav>
 </div></header>
+<script>
+// скрытый пункт меню только для тебя — показывается если ?admin=1 или localStorage
+(function(){
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.get('admin')==='1'){
+    localStorage.setItem('isAdmin','1');
+  }
+  if(localStorage.getItem('isAdmin')==='1'){
+    const link = document.getElementById('adminLink');
+    if(link) link.style.display='inline-block';
+  }
+})();
+</script>
 <main class="container"><div class="content" style="padding-top:48px">
 <div class="small muted sans">ПИЛЛАР • КВАРТИРА • 12 000 знаков</div>
 <h1>Как убрать запах в квартире: полная карта поиска источника</h1>
