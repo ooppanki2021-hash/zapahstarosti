@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Конструктор v2 — редактировать с сайта и сохранять на сайт</title>
+<link rel="stylesheet" href="/style.css?v=5">
+<style>
+body{font-family:-apple-system, sans-serif; background:#F6F9FF}
+.box{background:white; border:1px solid #DCE8F5; border-radius:12px; padding:16px; margin:12px 0}
+.toolbar{display:flex; gap:8px; flex-wrap:wrap; padding:10px; background:#EEF4FF; border-radius:10px; position:sticky; top:0; z-index:10}
+.toolbar button{border:1px solid #DCE8F5; background:white; border-radius:8px; padding:7px 11px; font-size:12px; cursor:pointer}
+#editor{border:1px solid #DCE8F5; border-radius:12px; padding:16px; min-height:300px; background:white; outline:none}
+input, select, textarea{width:100%; padding:9px 11px; border:1px solid #DCE8F5; border-radius:8px; font-size:13px; margin:4px 0}
+</style>
+</head><body>
+<div class="container" style="max-width:900px; padding:18px">
+<h1 class="sans" style="font-size:22px">Конструктор v2 — автосохранение на сайт</h1>
+<p class="small muted">Открывает статью прямо с zapahstarosti.ru, правишь и по кнопке Сохранить на сайт — сама улетает на GitHub без ручной заливки.</p>
+
+<div class="box sans">
+<h3 style="margin:0 0 8px">1. Настройки GitHub — один раз</h3>
+<input id="owner" value="ooppanki2021-hash" placeholder="owner — твой ник на GitHub">
+<input id="repo" value="zapahstarosti" placeholder="repo — имя репозитория">
+<input id="branch" value="main" placeholder="branch — main">
+<input id="token" type="password" placeholder="GitHub Personal Access Token с галочкой repo">
+<p class="small muted">Как получить токен: github.com → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token → галочка repo → Generate → скопировать. Токен не сохраняется, только в памяти этой страницы.</p>
+</div>
+
+<div class="box sans">
+<h3 style="margin:0 0 8px">2. Выбери статью для редактирования</h3>
+<select id="pageSelect">
+<option value="">— выбери —</option>
+<option value="chto-takoe-2-nonenal">2-ноненаль — наука</option>
+<option value="kak-otlichit-istochnik-zapakha">Диагностика — где источник</option>
+<option value="ubrat-zapah">Тело — как уменьшить запах</option>
+<option value="zapah-v-kvartire">Квартира — карта</option>
+<option value="kak-ubrat-zapah-s-divana">Диван</option>
+<option value="kak-ubrat-zapah-s-matrasa">Матрас</option>
+<option value="kak-ubrat-zapah-iz-shkafa">Шкаф</option>
+<option value="kak-ubrat-zapah-v-stiralnoj-mashine">Стиралка</option>
+<option value="kak-ubrat-zapah-v-sanuzle">Санузел</option>
+<option value="ventilyatsiya-i-vlazhnost">Вентиляция</option>
+<option value="sredstva-ot-zapaha">Средства — тут твое мыло</option>
+<option value="karta-osetii">Карта Осетии — NEW</option>
+<option value="o-proekte">О проекте</option>
+<option value="faq">FAQ</option>
+</select>
+<button onclick="loadFromGitHub()" style="margin-top:8px">Открыть статью с сайта в редактор</button>
+<p class="small muted">Подгрузит index.html из репозитория через GitHub API, вытащит контент и покажет в редакторе.</p>
+</div>
+
+<div class="box">
+<div class="toolbar sans">
+<button onclick="exec('formatBlock','h2')">H2</button>
+<button onclick="exec('formatBlock','h3')">H3</button>
+<button onclick="exec('bold')">Жирный</button>
+<button onclick="addLink()">Ссылка</button>
+<button onclick="exec('insertUnorderedList')">• Список</button>
+<button onclick="exec('insertOrderedList')">1. Список</button>
+<button onclick="addTable()">Таблица</button>
+<button onclick="addNote()">Важное</button>
+<button onclick="addKstati()">Кстати</button>
+<button onclick="addImg()">Картинка</button>
+</div>
+<div id="editor" contenteditable="true"><p>Выбери статью выше и нажми Открыть — или пиши новую здесь.</p></div>
+</div>
+
+<div class="box sans">
+<h3>3. SEO поля</h3>
+<input id="title" placeholder="Title SEO">
+<textarea id="desc" rows="2" placeholder="Description SEO"></textarea>
+<input id="h1" placeholder="H1 — вопрос пользователя">
+</div>
+
+<div style="display:flex; gap:10px; flex-wrap:wrap">
+<button class="btn" onclick="saveToGitHub()" style="background:#5A7A9A">💾 Сохранить на сайт (авто)</button>
+<button class="btn-light" onclick="download()">Скачать index.html</button>
+</div>
+<div id="status" class="small" style="margin-top:12px; color:#5A7A9A"></div>
+
+</div>
+<script>
+function exec(cmd,val){
+  if(val) document.execCommand(cmd,false,val);
+  else document.execCommand(cmd,false,null);
+}
+function addLink(){
+  let url=prompt("URL: /kak-ubrat-zapah-s-divana/ или https://...");
+  if(url) document.execCommand('createLink',false,url);
+}
+function addTable(){
+  document.execCommand('insertHTML',false, `<div class="table-wrap"><table class="table-min"><tr><th>Что</th><th>Как</th><th>Чего нельзя</th></tr><tr><td>Кожа</td><td>Мягкое очищение</td><td>Не тереть</td></tr></table></div><p></p>`);
+}
+function addNote(){
+  document.execCommand('insertHTML',false, `<div class="note"><strong>Важное:</strong> Не наносите на кожу уксус, соду, перекись без назначения.</div><p></p>`);
+}
+function addKstati(){
+  document.execCommand('insertHTML',false, `<div class="kstati"><b>Кстати</b>Человек перестает чувствовать свой запах через 20 минут из-за адаптации.</div><p></p>`);
+}
+function addImg(){
+  let src=prompt("Путь: /images/hero-blue.jpg");
+  let alt=prompt("Alt на русском");
+  if(src) document.execCommand('insertHTML',false, `<div class="figure"><img src="${src}" alt="${alt||''}" loading="lazy"><figcaption>${alt||''}</figcaption></div><p></p>`);
+}
+
+let currentSha=null;
+let currentSlug=null;
+
+async function loadFromGitHub(){
+  let owner=document.getElementById('owner').value.trim();
+  let repo=document.getElementById('repo').value.trim();
+  let branch=document.getElementById('branch').value.trim()||'main';
+  let token=document.getElementById('token').value.trim();
+  let slug=document.getElementById('pageSelect').value.trim();
+  if(!owner||!repo||!token||!slug){ alert("Заполни owner, repo, token и выбери страницу"); return; }
+  document.getElementById('status').textContent="Загружаю "+slug+"...";
+  try{
+    let res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`, {
+      headers:{Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json"}
+    });
+    if(!res.ok){ let t=await res.text(); throw new Error(t); }
+    let data = await res.json();
+    currentSha = data.sha;
+    currentSlug = slug;
+    let content = atob(data.content);
+    // try to extract <div class="content">...</div> inner
+    let m = content.match(/<div class="content"[^>]*>([\s\S]*?)<p class="small muted/);
+    let inner = m ? m[1] : content;
+    document.getElementById('editor').innerHTML = inner;
+    // try extract title/h1/desc
+    let tm = content.match(/<title>(.*?)<\/title>/);
+    if(tm) document.getElementById('title').value = tm[1];
+    let dm = content.match(/<meta name="description" content="(.*?)"/);
+    if(dm) document.getElementById('desc').value = dm[1];
+    let h1m = content.match(/<h1>(.*?)<\/h1>/);
+    if(h1m) document.getElementById('h1').value = h1m[1].replace(/<[^>]+>/g,'');
+    document.getElementById('status').textContent="Открыто: "+slug+" sha="+currentSha.substring(0,7);
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка: "+e.message;
+  }
+}
+
+function buildFullHtml(){
+  let slug = currentSlug || document.getElementById('pageSelect').value || 'novaya';
+  let title = document.getElementById('title').value || 'Новая статья';
+  let desc = document.getElementById('desc').value || '';
+  let h1 = document.getElementById('h1').value || title;
+  let body = document.getElementById('editor').innerHTML;
+  return `<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="yandex-verification" content="e3e7231de3258122" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${desc}">
+<link rel="canonical" href="https://zapahstarosti.ru/${slug}/"><link rel="stylesheet" href="/style.css?v=5">
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111871686', 'ym');
+    ym(111871686, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head><body>
+<header class="header"><div class="container header-inner">
+<a class="logo" href="/">запах <em>старости</em>.ru</a>
+<nav class="nav sans">
+<a href="/">Главная</a>
+<div class="dropdown">
+<a class="dropdown-toggle" href="/kak-otlichit-istochnik-zapakha/">Диагностика</a>
+<div class="dropdown-menu">
+<a href="/kak-otlichit-istochnik-zapakha/">Найти источник за 10 минут</a>
+<a href="/kviz/">Квиз: где источник?</a>
+<a href="/karta-kvartiry/">Карта квартиры</a>
+<a href="/material-metod/">Таблица материал-метод</a>
+</div>
+</div>
+<a href="/chto-takoe-2-nonenal/">2-ноненаль</a>
+<div class="dropdown">
+<a class="dropdown-toggle" href="/ubrat-zapah/">Тело</a>
+<div class="dropdown-menu">
+<a href="/ubrat-zapah/">Как уменьшить запах тела</a>
+<a href="/uhod-za-suhoj-kozhej/">Уход за сухой кожей</a>
+<a href="/odezhda-i-tekstil/">Одежда и текстиль</a>
+<a href="/lekarstva-i-zapah/">Лекарства и запах</a>
+<a href="/kogda-k-vrachu/">Когда к врачу</a>
+<a href="/kak-pogovorit-s-blizkim/">Как поговорить с близким</a>
+</div>
+</div>
+<div class="dropdown">
+<a class="dropdown-toggle" href="/zapah-v-kvartire/">Квартира</a>
+<div class="dropdown-menu">
+<a href="/zapah-v-kvartire/">Общая карта</a>
+<a href="/kak-ubrat-zapah-s-matrasa/">Матрас</a>
+<a href="/kak-ubrat-zapah-s-divana/">Диван</a>
+<a href="/kak-ubrat-zapah-iz-shkafa/">Шкаф и ящики</a>
+<a href="/kak-ubrat-zapah-v-stiralnoj-mashine/">Стиральная машина</a>
+<a href="/kak-ubrat-zapah-v-sanuzle/">Санузел</a>
+<a href="/ventilyatsiya-i-vlazhnost/">Вентиляция и влажность</a>
+</div>
+</div>
+<div class="dropdown">
+<a class="dropdown-toggle" href="/sredstva-ot-zapaha/">Средства</a>
+<div class="dropdown-menu">
+<a href="/sredstva-ot-zapaha/">Что нейтрализует, а что маскирует</a>
+<a href="/poroshok-dlya-tekstila/">Порошок для текстиля</a>
+<a href="/tonik-protirka/">Тоник и протирка</a>
+<a href="/nabor/">Набор Тело+текстиль</a>
+<a href="/ochistitel-vozduha/">Очиститель, пароочиститель, озонатор</a>
+</div>
+</div>
+<div class="dropdown">
+<a class="dropdown-toggle" href="/o-proekte/">О проекте</a>
+<div class="dropdown-menu">
+<a href="/o-proekte/">О проекте и Letocosmetics</a>
+<a href="/karta-osetii/">Карта Осетии — где собираем кору</a>
+<a href="/faq/">FAQ — 20 ответов</a>
+</div>
+</div>
+</nav>
+</div></header>
+<main class="container"><div class="content" style="padding-top:48px">
+<h1>${h1}</h1>
+${body}
+<p class="small muted sans">Обновлено 23.08.2026. При поддержке Letocosmetics.</p>
+</div></main>
+<footer class="footer"><div class="container"><div class="content small">© 2026 • <a href="/">Главная</a></div></div></footer>
+<script>
+document.addEventListener('click', function(e){
+  const toggle = e.target.closest('.dropdown-toggle');
+  if(toggle){
+    e.preventDefault();
+    const dd = toggle.closest('.dropdown');
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!isOpen) dd.classList.add('open');
+  } else {
+    if(!e.target.closest('.dropdown')){
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+    }
+  }
+});
+</script>
+</body></html>`;
+}
+
+async function saveToGitHub(){
+  let owner=document.getElementById('owner').value.trim();
+  let repo=document.getElementById('repo').value.trim();
+  let branch=document.getElementById('branch').value.trim()||'main';
+  let token=document.getElementById('token').value.trim();
+  let slug=currentSlug || document.getElementById('pageSelect').value;
+  if(!owner||!repo||!token||!slug){ alert("Заполни owner, repo, token и выбери страницу"); return; }
+  let full = buildFullHtml();
+  let b64 = btoa(unescape(encodeURIComponent(full)));
+  document.getElementById('status').textContent="Сохраняю на сайт...";
+  try{
+    // get sha if not have
+    if(!currentSha){
+      let res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`, {
+        headers:{Authorization:`token ${token}`}
+      });
+      if(res.ok){ let d=await res.json(); currentSha=d.sha; }
+    }
+    let body = {message:`update ${slug} via constructor v2`, content:b64, branch:branch};
+    if(currentSha) body.sha=currentSha;
+    let res2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`, {
+      method:"PUT",
+      headers:{Authorization:`token ${token}`, "Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    if(!res2.ok){ let t=await res2.text(); throw new Error(t); }
+    let data2 = await res2.json();
+    currentSha = data2.content.sha;
+    document.getElementById('status').textContent="✅ Сохранено! Через 1-2 мин на https://zapahstarosti.ru/"+slug+"/";
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка: "+e.message;
+  }
+}
+
+function download(){
+  let full = buildFullHtml();
+  let blob = new Blob([full], {type:'text/html'});
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='index.html';
+  a.click();
+}
+</script>
+</body></html>
