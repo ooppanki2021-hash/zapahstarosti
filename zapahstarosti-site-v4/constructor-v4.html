@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8"><link rel="icon" href="/favicon.ico" type="image/x-icon">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Конструктор v4 — 100% рабочий</title>
+<link rel="stylesheet" href="/style.css?v=6">
+<style>
+body{font-family:-apple-system, sans-serif; background:#F6F9FF}
+.box{background:white; border:1px solid #DCE8F5; border-radius:12px; padding:16px; margin:12px 0}
+#editor{border:1px solid #DCE8F5; border-radius:12px; padding:16px; min-height:300px; background:white; outline:none}
+input, select{width:100%; padding:9px; border:1px solid #DCE8F5; border-radius:8px; margin:4px 0}
+</style>
+</head><body>
+<div class="container" style="max-width:900px; padding:18px">
+<h1 class="sans" style="font-size:20px">Конструктор v4 — грузит напрямую</h1>
+<div class="box sans">
+<input id="owner" value="ooppanki2021-hash">
+<input id="repo" value="zapahstarosti">
+<input id="branch" value="main">
+<input id="token" type="password" placeholder="Токен только для сохранения ghp_...">
+<select id="slug">
+<option value="chto-takoe-2-nonenal">2-ноненаль</option>
+<option value="kak-otlichit-istochnik-zapakha">Диагностика</option>
+<option value="ubrat-zapah">Тело</option>
+<option value="zapah-v-kvartire">Квартира</option>
+<option value="kak-ubrat-zapah-s-divana">Диван</option>
+<option value="kak-ubrat-zapah-s-matrasa">Матрас</option>
+<option value="kak-ubrat-zapah-iz-shkafa">Шкаф</option>
+<option value="kak-ubrat-zapah-v-stiralnoj-mashine">Стиралка</option>
+<option value="sredstva-ot-zapaha">Средства</option>
+<option value="o-proekte">О проекте</option>
+</select>
+<button onclick="loadRaw()">Открыть статью</button>
+<div id="status" class="small" style="margin-top:8px"></div>
+</div>
+<div class="box"><div id="editor" contenteditable="true"><p>Нажми Открыть</p></div></div>
+<button onclick="save()" style="padding:10px 20px; border-radius:999px; border:0; background:#5A7A9A; color:white">💾 Сохранить на сайт</button>
+</div>
+<script>
+let sha=null, slug=null;
+async function loadRaw(){
+  let owner=document.getElementById('owner').value;
+  let repo=document.getElementById('repo').value;
+  let branch=document.getElementById('branch').value||'main';
+  slug=document.getElementById('slug').value;
+  document.getElementById('status').textContent="Загружаю "+slug+" с raw.githubusercontent.com...";
+  try{
+    let url=`https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${slug}/index.html`;
+    let res=await fetch(url);
+    if(!res.ok) throw new Error("HTTP "+res.status+" — проверь что папка "+slug+" существует в репо");
+    let html=await res.text();
+    // extract content div
+    let m=html.match(/<div class="content"[^>]*>([\s\S]*?)<\/div>\s*<\/main>/);
+    let inner=m?m[1]:html;
+    document.getElementById('editor').innerHTML=inner;
+    document.getElementById('status').textContent="Открыто: "+slug+" — "+inner.length+" симв. Теперь можно править и сохранять.";
+    // get sha for save
+    let token=document.getElementById('token').value;
+    if(token){
+      let apiRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
+      if(apiRes.ok){ let d=await apiRes.json(); sha=d.sha; }
+    }
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка: "+e.message;
+  }
+}
+async function save(){
+  let owner=document.getElementById('owner').value;
+  let repo=document.getElementById('repo').value;
+  let branch=document.getElementById('branch').value||'main';
+  let token=document.getElementById('token').value;
+  if(!token||!slug){ alert("Нужен токен и открытая статья"); return; }
+  // build minimal page
+  let body=document.getElementById('editor').innerHTML;
+  let full=`<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="yandex-verification" content="e3e7231de3258122" /><link rel="icon" href="/favicon.ico" type="image/x-icon">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Статья</title><link rel="stylesheet" href="/style.css?v=6"><!-- Yandex.Metrika counter --><script type="text/javascript">(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111871686', 'ym');ym(111871686, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});<\/script><noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter --></head><body><main class="container"><div class="content" style="padding-top:48px">${body}</div></main></body></html>`;
+  let b64=btoa(unescape(encodeURIComponent(full)));
+  document.getElementById('status').textContent="Сохраняю...";
+  try{
+    if(!sha){
+      let r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
+      if(r.ok){ let d=await r.json(); sha=d.sha; }
+    }
+    let res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`,{method:"PUT", headers:{Authorization:`token ${token}`, "Content-Type":"application/json"}, body:JSON.stringify({message:`update ${slug}`, content:b64, branch:branch, sha:sha})});
+    if(!res.ok) throw new Error(await res.text());
+    let data=await res.json();
+    sha=data.content.sha;
+    document.getElementById('status').textContent="✅ Сохранено! https://zapahstarosti.ru/"+slug+"/";
+  }catch(e){ document.getElementById('status').textContent="Ошибка сохранения: "+e.message; }
+}
+</script>
+</body></html>
