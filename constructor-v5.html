@@ -21,9 +21,13 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <input id="owner" value="ooppanki2021-hash">
 <input id="repo" value="zapahstarosti">
 <input id="branch" value="main">
-<input id="token" type="password" placeholder="Токен ghp_... — нужен только для Сохранить и Скопировать">
+<div style="display:flex; gap:8px; align-items:center">
+  <input id="token" type="password" placeholder="Токен ghp_... — нужен только для Сохранить и Скопировать" style="margin:3px 0">
+  <button type="button" id="tokenEye" class="btn-small" style="white-space:nowrap; background:#EEF4FF; color:#5A7A9A; border:1px solid #DCE8F5">👁</button>
+</div>
 <label class="small"><input type="checkbox" id="remember" checked> Запомнить токен</label>
 <div id="tokenStatus" class="small muted"></div>
+<div id="envNote" class="small" style="color:#B0782A; white-space:pre-wrap"></div>
 </div>
 
 <div class="box sans">
@@ -100,15 +104,59 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 // ===== v7: безопасный localStorage (не убивает скрипт в песочнице) =====
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+// а можно ли вообще хранить? (в превью-песочнице — нельзя)
+var CAN_STORE=(function(){ try{ var k='__tst'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; }catch(e){ return false; } })();
+
+// ===== v7: токен — всегда видно, введён ли он =====
+function tokenStatus(){
+  var v=document.getElementById('token').value.trim();
+  var el=document.getElementById('tokenStatus');
+  var rem=document.getElementById('remember');
+  var remChecked=rem?rem.checked:false;
+  if(!v){
+    el.textContent = CAN_STORE
+      ? 'Токен не введён.'
+      : '⚠️ Токен не введён. Здесь (превью в песочнице) запомнить его нельзя — после перезагрузки введи заново. На сайте zapahstarosti.ru — запомнится.';
+    return;
+  }
+  var msg='Токен введён: ••••'+v.slice(-4)+' ('+v.length+' симв.)';
+  if(!CAN_STORE) msg+=' — ⚠️ превью: не запомню, после перезагрузки введи заново';
+  else if(remChecked) msg+=' — запомню в этом браузере';
+  else msg+=' — галочка «Запомнить» снята, не запомню';
+  el.textContent=msg;
+}
 
 (function(){
   let t=lsGet('gh_token'); if(t) document.getElementById('token').value=t;
-  document.getElementById('token').addEventListener('change', function(){
-    if(document.getElementById('remember').checked){
-      lsSet('gh_token', this.value);
-      document.getElementById('tokenStatus').textContent="Токен сохранен";
-    }
+  var tok=document.getElementById('token');
+  var rem=document.getElementById('remember');
+  // сохраняем сразу при вводе/вставке, а не только при уходе с поля
+  tok.addEventListener('input', function(){
+    if(rem && rem.checked && CAN_STORE) lsSet('gh_token', this.value);
+    tokenStatus();
   });
+  tok.addEventListener('change', function(){ tokenStatus(); });
+  if(rem) rem.addEventListener('change', function(){
+    if(this.checked && CAN_STORE){ lsSet('gh_token', tok.value); }
+    else if(!this.checked){ lsDel('gh_token'); }
+    tokenStatus();
+  });
+  var eye=document.getElementById('tokenEye');
+  if(eye) eye.addEventListener('click', function(){
+    tok.type = tok.type==='password' ? 'text' : 'password';
+    eye.textContent = tok.type==='password' ? '👁' : '🙈';
+  });
+  tokenStatus();
+  // подсказка где мы находимся
+  (function(){
+    var el=document.getElementById('envNote'); if(!el) return;
+    var notes=[];
+    if(!CAN_STORE) notes.push('• Это превью в песочнице: хранилище браузера заблокировано, токен при перезагрузке пропадёт. Редактировать и скачивать index.html можно, «Сохранить на сайт» может не пустить песочница.');
+    else if(location.protocol==='https:' && location.hostname && location.hostname.indexOf('zapahstarosti.ru')===-1) notes.push('• Открыто не на zapahstarosti.ru: статьи грузятся с живого сайта, всё работает, но токен запомнится только для этого адреса.');
+    if(location.protocol==='file:') notes.push('• Файл открыт с диска — статьи грузятся с живого сайта zapahstarosti.ru.');
+    el.textContent=notes.join('\n');
+  })();
 })();
 
 // ===== v7: база для загрузки статей =====
@@ -410,4 +458,4 @@ function download(){
   let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
 }
 </script>
-</body></html>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32510bc6ade664c',t:'MTc4NzkzODQ1MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
