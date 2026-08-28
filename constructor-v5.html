@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Конструктор v5 — полный для работы — все 26 статей</title>
+<title>Конструктор v5 — все 26 статей — фикс</title>
 <link rel="stylesheet" href="/style.css?v=7">
 <style>
 body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
@@ -13,8 +13,8 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 </style>
 </head><body>
 <div class="container" style="max-width:900px; padding:16px">
-<h1 class="sans" style="font-size:20px">Конструктор v5 — все 26 статей + полный набор</h1>
-<p class="small muted">Токен запоминается один раз. Открывает любую статью с сайта без токена, сохраняет на сайт по кнопке.</p>
+<h1 class="sans" style="font-size:20px">Конструктор v5 — все 26 статей — фикс парсинга</h1>
+<p class="small muted">Открывает любую статью с сайта без токена через DOMParser. Токен запоминается один раз и нужен только для сохранения.</p>
 
 <div class="box sans">
 <h3 style="margin:0 0 6px">GitHub — один раз</h3>
@@ -34,19 +34,19 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <option value="kak-otlichit-istochnik-zapakha">Диагностика — где источник 10 мин</option>
 <option value="ubrat-zapah">Тело — как уменьшить запах тела</option>
 <option value="zapah-v-kvartire">Квартира — общая карта 4471зн</option>
-<option value="kak-ubrat-zapah-s-divana">Квартира — Диван 2599зн</option>
-<option value="kak-ubrat-zapah-s-matrasa">Квартира — Матрас 3421зн</option>
-<option value="kak-ubrat-zapah-iz-shkafa">Квартира — Шкаф 2326зн</option>
-<option value="kak-ubrat-zapah-v-stiralnoj-mashine">Квартира — Стиралка 2561зн</option>
+<option value="kak-ubrat-zapah-s-divana">Квартира — Диван</option>
+<option value="kak-ubrat-zapah-s-matrasa">Квартира — Матрас</option>
+<option value="kak-ubrat-zapah-iz-shkafa">Квартира — Шкаф и ящики</option>
+<option value="kak-ubrat-zapah-v-stiralnoj-mashine">Квартира — Стиральная машина</option>
 <option value="kak-ubrat-zapah-v-sanuzle">Квартира — Санузел</option>
-<option value="ventilyatsiya-i-vlazhnost">Квартира — Вентиляция</option>
+<option value="ventilyatsiya-i-vlazhnost">Квартира — Вентиляция и влажность</option>
 <option value="karta-kvartiry">Квартира — Карта квартиры</option>
 <option value="odezhda-i-tekstil">Тело — Одежда и текстиль</option>
 <option value="uhod-za-suhoj-kozhej">Тело — Сухая кожа</option>
 <option value="lekarstva-i-zapah">Тело — Лекарства и запах</option>
 <option value="kogda-k-vrachu">Тело — Когда к врачу</option>
 <option value="kak-pogovorit-s-blizkim">Тело — Как поговорить с близким</option>
-<option value="sredstva-ot-zapaha">Средства — что нейтрализует 3136зн</option>
+<option value="sredstva-ot-zapaha">Средства — что нейтрализует</option>
 <option value="poroshok-dlya-tekstila">Средства — Порошок</option>
 <option value="tonik-protirka">Средства — Тоник</option>
 <option value="nabor">Средства — Набор</option>
@@ -57,9 +57,9 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <option value="faq">FAQ — 20 ответов</option>
 <option value="o-proekte">О проекте и Letocosmetics</option>
 </select>
-<input id="newSlug" placeholder="Или новый slug: kak-ubrat-zapah-iz-obuvi">
+<input id="newSlug" placeholder="Или новый slug">
 <button class="btn-small" onclick="loadRaw()">Открыть статью в редактор</button>
-<div id="status" class="small" style="margin-top:8px; color:#5A7A9A"></div>
+<div id="status" class="small" style="margin-top:8px; color:#5A7A9A; font-weight:bold"></div>
 </div>
 
 <div class="box">
@@ -98,7 +98,6 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 </div>
 
 <script>
-// запомнить токен один раз
 (function(){
   let t=localStorage.getItem('gh_token'); if(t) document.getElementById('token').value=t;
   document.getElementById('token').addEventListener('change', function(){
@@ -142,18 +141,21 @@ function addButton(){
   let url=prompt("Ссылка:","/kak-otlichit-istochnik-zapakha/");
   if(txt&&url) document.execCommand('insertHTML',false, `<p><a href="${url}" style="display:inline-block; padding:10px 18px; border-radius:999px; background:#7A9AB8; color:white; text-decoration:none">${txt}</a></p>`);
 }
+
 let currentSha=null, currentSlug=null;
 
 async function loadRaw(){
   let owner=document.getElementById('owner').value.trim();
   let repo=document.getElementById('repo').value.trim();
   let branch=document.getElementById('branch').value.trim()||'main';
+  let token=document.getElementById('token').value.trim();
   let slug=document.getElementById('newSlug').value.trim()||document.getElementById('slug').value.trim();
   if(!slug){ alert("Выбери slug"); return; }
-  document.getElementById('status').textContent="Загружаю "+slug+"...";
+  document.getElementById('status').textContent="Загружаю /"+slug+"/...";
   try{
-    let res=await fetch(`/${slug}/index.html`);
-    if(!res.ok) throw new Error("HTTP "+res.status);
+    let url=`/${slug}/index.html`;
+    let res=await fetch(url);
+    if(!res.ok) throw new Error("HTTP "+res.status+" — папка "+slug+" не найдена");
     let html=await res.text();
     let parser=new DOMParser();
     let doc=parser.parseFromString(html,"text/html");
@@ -167,12 +169,12 @@ async function loadRaw(){
     let h1m=html.match(/<h1>(.*?)<\/h1>/);
     if(h1m) document.getElementById('h1').value=h1m[1].replace(/<[^>]+>/g,'');
     currentSlug=slug;
-    document.getElementById('status').textContent="✅ Открыто: "+slug+" — "+inner.length+" симв";
-    // get sha for save if token exists
-    let token=document.getElementById('token').value.trim();
+    document.getElementById('status').textContent="✅ Открыто: "+slug+" — "+inner.length+" симв. Можно править.";
     if(token){
-      let apiRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
-      if(apiRes.ok){ let d=await apiRes.json(); currentSha=d.sha; }
+      try{
+        let apiRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
+        if(apiRes.ok){ let d=await apiRes.json(); currentSha=d.sha; }
+      }catch(e){}
     }
   }catch(e){
     document.getElementById('status').textContent="Ошибка: "+e.message;
