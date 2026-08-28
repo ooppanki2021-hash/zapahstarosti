@@ -1,17 +1,32 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Конструктор — финальный рабочий — все 26 статей</title>
+<title>Конструктор v6 — все 26 + инструментарий + копировать</title>
+<link rel="stylesheet" href="/style.css?v=7">
 <style>
-body{font-family:system-ui, sans-serif; background:#F6F9FF; padding:20px; max-width:800px; margin:0 auto}
+body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
 .box{background:white; border:1px solid #DCE8F5; border-radius:12px; padding:14px; margin:10px 0}
-#editor{border:2px solid #7A9AB8; border-radius:12px; padding:16px; min-height:400px; background:white}
-select, input{width:100%; padding:10px; border:1px solid #DCE8F5; border-radius:8px; margin:4px 0}
-button{padding:10px 18px; border-radius:999px; border:0; background:#5A7A9A; color:white; cursor:pointer}
-#status{margin-top:10px; font-weight:bold; color:#5A7A9A; white-space:pre-wrap}
+.toolbar{display:flex; gap:6px; flex-wrap:wrap; padding:10px; background:#EEF4FF; border-radius:10px; position:sticky; top:0; z-index:10}
+.toolbar button{border:1px solid #DCE8F5; background:white; border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer}
+#editor{border:2px solid #7A9AB8; border-radius:12px; padding:16px; min-height:400px; background:white; outline:none; line-height:1.7}
+input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; border-radius:8px; font-size:13px; margin:3px 0}
+.btn-small{padding:8px 14px; border-radius:999px; border:0; background:#5A7A9A; color:white; cursor:pointer; font-size:12px}
 </style>
 </head><body>
-<h1>Конструктор — финальный — все 26 статей</h1>
-<div class="box">
+<div class="container" style="max-width:900px; padding:16px">
+<h1 class="sans" style="font-size:20px">Конструктор v6 — все 26 + инструментарий</h1>
+<p class="small muted">Открывает любую из 26 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз.</p>
+
+<div class="box sans">
+<h3 style="margin:0 0 6px">GitHub — один раз для сохранения</h3>
+<input id="owner" value="ooppanki2021-hash">
+<input id="repo" value="zapahstarosti">
+<input id="branch" value="main">
+<input id="token" type="password" placeholder="Токен ghp_... — нужен только для Сохранить и Скопировать">
+<label class="small"><input type="checkbox" id="remember" checked> Запомнить токен</label>
+<div id="tokenStatus" class="small muted"></div>
+</div>
+
+<div class="box sans">
 <select id="slug">
 <option value="chto-takoe-2-nonenal">2-ноненаль — наука</option>
 <option value="kak-otlichit-istochnik-zapakha">Диагностика — где источник</option>
@@ -34,35 +49,238 @@ button{padding:10px 18px; border-radius:999px; border:0; background:#5A7A9A; col
 <option value="tonik-protirka">Средства — Тоник</option>
 <option value="nabor">Средства — Набор</option>
 <option value="ochistitel-vozduha">Средства — Очиститель воздуха</option>
-<option value="karta-osetii">Карта Осетии</option>
+<option value="karta-osetii">Карта Осетии — где собираем кору</option>
 <option value="kviz">Квиз</option>
 <option value="material-metod">Таблица материал-метод</option>
 <option value="faq">FAQ</option>
 <option value="o-proekte">О проекте</option>
 </select>
-<button onclick="load()">Открыть статью</button>
-<div id="status">Жду клика</div>
+<input id="newSlug" placeholder="Новый slug для новой статьи или для копии">
+<div style="display:flex; gap:8px; margin-top:8px">
+<button class="btn-small" onclick="load()">Открыть статью</button>
+<button class="btn-small" onclick="copyPage()" style="background:#EEF4FF; color:#5A7A9A; border:1px solid #DCE8F5">📋 Скопировать эту страницу в новую</button>
 </div>
-<div class="box"><div id="editor" contenteditable="true">Тут появится статья</div></div>
+<div id="status" style="margin-top:8px; font-weight:bold; color:#5A7A9A; white-space:pre-wrap"></div>
+</div>
+
+<div class="box">
+<div class="toolbar sans">
+<button onclick="exec('formatBlock','h2')">H2</button>
+<button onclick="exec('formatBlock','h3')">H3</button>
+<button onclick="exec('bold')">Жирный</button>
+<button onclick="addLink()">Ссылка</button>
+<button onclick="addAnchor()">Анкор id</button>
+<button onclick="exec('insertUnorderedList')">• Список</button>
+<button onclick="exec('insertOrderedList')">1. Список</button>
+<button onclick="addColor()">Цвет</button>
+<button onclick="addTable()">Таблица</button>
+<button onclick="addNote()">Важное</button>
+<button onclick="addKstati()">Кстати</button>
+<button onclick="addButton()">Кнопка</button>
+<button onclick="addImg()">Картинка</button>
+<input type="color" id="colorPicker" value="#5A7A9A" style="width:32px; height:26px">
+</div>
+<div id="editor" contenteditable="true"><p>Выбери статью и нажми Открыть</p></div>
+</div>
+
+<div class="box sans">
+<input id="title" placeholder="Title SEO — уникальный">
+<textarea id="desc" rows="2" placeholder="Description SEO — уникальный"></textarea>
+<input id="h1" placeholder="H1 — вопрос пользователя">
+</div>
+
+<div style="display:flex; gap:10px">
+<button class="btn-small" onclick="save()" style="padding:10px 18px">💾 Сохранить на сайт</button>
+<button class="btn-small" onclick="download()" style="background:white; color:#5A7A9A; border:1px solid #DCE8F5">Скачать index.html</button>
+</div>
+</div>
 
 <script>
+(function(){
+  let t=localStorage.getItem('gh_token'); if(t) document.getElementById('token').value=t;
+  document.getElementById('token').addEventListener('change', function(){
+    if(document.getElementById('remember').checked){
+      localStorage.setItem('gh_token', this.value);
+      document.getElementById('tokenStatus').textContent="Токен сохранен";
+    }
+  });
+})();
+
+function exec(c,v){
+  if(v==='h1') document.execCommand('formatBlock',false,'<h1>');
+  else if(v==='h2') document.execCommand('formatBlock',false,'<h2>');
+  else if(v==='h3') document.execCommand('formatBlock',false,'<h3>');
+  else document.execCommand(c,false,v||null);
+}
+function addLink(){
+  let url=prompt("URL: /kak-ubrat-zapah-s-divana/ или https://...");
+  if(!url) return;
+  let sel=window.getSelection().toString()||prompt("Текст ссылки:")||url;
+  document.execCommand('insertHTML',false, `<a href="${url}">${sel}</a>`);
+}
+function addAnchor(){
+  let id=prompt("ID анкора без пробелов, например pochemu-pahnet");
+  if(!id) return;
+  document.execCommand('insertHTML',false, `<span id="${id}"></span>`);
+}
+function addColor(){
+  let col=document.getElementById('colorPicker').value;
+  document.execCommand('foreColor',false,col);
+}
+function addTable(){
+  document.execCommand('insertHTML',false, `<table class="table-min"><tr><th>Что</th><th>Как</th><th>Чего нельзя</th></tr><tr><td>Кожа</td><td>Мягкое очищение pH 5.5</td><td>Не тереть до скрипа</td></tr></table><p></p>`);
+}
+function addNote(){
+  document.execCommand('insertHTML',false, `<div class="note"><strong>Важное:</strong> Не наносите на кожу уксус, соду, перекись без назначения.</div><p></p>`);
+}
+function addKstati(){
+  document.execCommand('insertHTML',false, `<div class="kstati"><b>Кстати</b>Человек перестает чувствовать свой запах через 20 минут из-за адаптации обоняния.</div><p></p>`);
+}
+function addButton(){
+  let txt=prompt("Текст кнопки:","Найти источник за 10 минут");
+  let url=prompt("Ссылка кнопки:","/kak-otlichit-istochnik-zapakha/");
+  if(txt&&url) document.execCommand('insertHTML',false, `<p><a href="${url}" style="display:inline-block; padding:10px 18px; border-radius:999px; background:#7A9AB8; color:white; text-decoration:none">${txt}</a></p>`);
+}
+function addImg(){
+  let src=prompt("Путь к картинке, например /images/hero-blue.jpg");
+  let alt=prompt("Alt на русском для SEO");
+  if(src) document.execCommand('insertHTML',false, `<div class="figure"><img src="${src}" alt="${alt||''}" loading="lazy"><figcaption>${alt||''}</figcaption></div><p></p>`);
+}
+
+let currentSha=null, currentSlug=null;
+
 async function load(){
-  let slug=document.getElementById('slug').value;
+  let slug=document.getElementById('slug').value.trim();
+  if(!slug){ alert("Выбери статью"); return; }
   let status=document.getElementById('status');
   status.textContent="Гружу /"+slug+"/index.html ...";
   try{
     let res=await fetch("/"+slug+"/index.html");
-    status.textContent="Статус ответа: "+res.status;
+    if(!res.ok) throw new Error("HTTP "+res.status);
     let html=await res.text();
     let parser=new DOMParser();
     let doc=parser.parseFromString(html,"text/html");
-    let content=doc.querySelector(".content");
-    if(!content) throw new Error("Не нашел .content в "+slug);
-    document.getElementById('editor').innerHTML=content.innerHTML;
-    status.textContent="✅ Загружено: "+html.length+" симв, в редакторе "+content.innerHTML.length+" симв — можно редактировать";
+    let contentEl=doc.querySelector(".content");
+    let inner=contentEl?contentEl.innerHTML:html;
+    document.getElementById('editor').innerHTML=inner;
+    let tm=html.match(/<title>(.*?)<\/title>/);
+    if(tm) document.getElementById('title').value=tm[1];
+    let dm=html.match(/name="description" content="(.*?)"/);
+    if(dm) document.getElementById('desc').value=dm[1];
+    let h1m=html.match(/<h1>(.*?)<\/h1>/);
+    if(h1m) document.getElementById('h1').value=h1m[1].replace(/<[^>]+>/g,'');
+    currentSlug=slug;
+    status.textContent="✅ Открыто: "+slug+" — "+inner.length+" симв. Можно править и копировать.";
+    // получить sha для сохранения если токен есть
+    let owner=document.getElementById('owner').value.trim();
+    let repo=document.getElementById('repo').value.trim();
+    let branch=document.getElementById('branch').value.trim()||'main';
+    let token=document.getElementById('token').value.trim();
+    if(token){
+      let apiRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
+      if(apiRes.ok){ let d=await apiRes.json(); currentSha=d.sha; }
+    }
   }catch(e){
     document.getElementById('status').textContent="Ошибка: "+e.message;
   }
+}
+
+function buildHtml(slug){
+  let title=document.getElementById('title').value||'Новая статья';
+  let desc=document.getElementById('desc').value||'';
+  let h1=document.getElementById('h1').value||title;
+  let body=document.getElementById('editor').innerHTML;
+  return `<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="yandex-verification" content="e3e7231de3258122" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${desc}">
+<link rel="canonical" href="https://zapahstarosti.ru/${slug}/"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/style.css?v=7">
+<!-- Yandex.Metrika counter --><script type="text/javascript">(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111871686', 'ym');ym(111871686, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});</script><noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
+</head><body>
+<header class="header"><div class="container header-inner">
+<a class="logo" href="/">запах <em>старости</em>.ru</a>
+<nav class="nav sans">
+<a href="/">Главная</a>
+<div class="dropdown"><a class="dropdown-toggle" href="/kak-otlichit-istochnik-zapakha/">Диагностика</a><div class="dropdown-menu"><a href="/kak-otlichit-istochnik-zapakha/">Найти источник</a><a href="/kviz/">Квиз</a><a href="/karta-kvartiry/">Карта квартиры</a><a href="/material-metod/">Материал-метод</a></div></div>
+<a href="/chto-takoe-2-nonenal/">2-ноненаль</a>
+<div class="dropdown"><a class="dropdown-toggle" href="/ubrat-zapah/">Тело</a><div class="dropdown-menu"><a href="/ubrat-zapah/">Тело</a><a href="/uhod-za-suhoj-kozhej/">Сухая кожа</a><a href="/odezhda-i-tekstil/">Одежда</a><a href="/kogda-k-vrachu/">Когда к врачу</a></div></div>
+<div class="dropdown"><a class="dropdown-toggle" href="/zapah-v-kvartire/">Квартира</a><div class="dropdown-menu"><a href="/zapah-v-kvartire/">Общая карта</a><a href="/kak-ubrat-zapah-s-matrasa/">Матрас</a><a href="/kak-ubrat-zapah-s-divana/">Диван</a><a href="/kak-ubrat-zapah-iz-shkafa/">Шкаф</a><a href="/kak-ubrat-zapah-v-stiralnoj-mashine/">Стиралка</a></div></div>
+<div class="dropdown"><a class="dropdown-toggle" href="/sredstva-ot-zapaha/">Средства</a><div class="dropdown-menu"><a href="/sredstva-ot-zapaha/">Что нейтрализует</a><a href="/poroshok-dlya-tekstila/">Порошок</a><a href="/nabor/">Набор</a></div></div>
+<a href="/o-proekte/">О проекте</a>
+</nav>
+</div></header>
+<main class="container"><div class="content" style="padding-top:48px">
+<h1>${h1}</h1>
+${body}
+<p class="small muted sans">Обновлено 23.08.2026.</p>
+</div></main>
+<footer class="footer"><div class="container"><div class="content small">© 2026</div></div></footer>
+<script>
+document.addEventListener('click', function(e){
+  const t=e.target.closest('.dropdown-toggle');
+  if(t){ e.preventDefault(); const dd=t.closest('.dropdown'); const o=dd.classList.contains('open'); document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open')); if(!o) dd.classList.add('open'); }
+  else if(!e.target.closest('.dropdown')){ document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open')); }
+});
+</script>
+</body></html>`;
+}
+
+async function save(){
+  let owner=document.getElementById('owner').value.trim();
+  let repo=document.getElementById('repo').value.trim();
+  let branch=document.getElementById('branch').value.trim()||'main';
+  let token=document.getElementById('token').value.trim();
+  let slug=currentSlug||document.getElementById('slug').value;
+  if(!token||!slug){ alert("Нужен токен и открытая статья"); return; }
+  let full=buildHtml(slug);
+  let b64=btoa(unescape(encodeURIComponent(full)));
+  document.getElementById('status').textContent="Сохраняю "+slug+"...";
+  try{
+    if(!currentSha){
+      let r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html?ref=${branch}`,{headers:{Authorization:`token ${token}`}});
+      if(r.ok){ let d=await r.json(); currentSha=d.sha; }
+    }
+    let body={message:`update ${slug} via constructor v6`, content:b64, branch:branch};
+    if(currentSha) body.sha=currentSha;
+    let res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`,{method:"PUT", headers:{Authorization:`token ${token}`, "Content-Type":"application/json"}, body:JSON.stringify(body)});
+    if(!res.ok) throw new Error(await res.text());
+    let data=await res.json();
+    currentSha=data.content.sha;
+    document.getElementById('status').textContent="✅ Сохранено! https://zapahstarosti.ru/"+slug+"/";
+  }catch(e){ document.getElementById('status').textContent="Ошибка: "+e.message; }
+}
+
+async function copyPage(){
+  let owner=document.getElementById('owner').value.trim();
+  let repo=document.getElementById('repo').value.trim();
+  let branch=document.getElementById('branch').value.trim()||'main';
+  let token=document.getElementById('token').value.trim();
+  if(!token){ alert("Нужен токен для копирования"); return; }
+  let newSlug=document.getElementById('newSlug').value.trim() || prompt("Новый slug для копии, например: kak-ubrat-zapah-iz-obuvi");
+  if(!newSlug) return;
+  let full=buildHtml(newSlug);
+  let b64=btoa(unescape(encodeURIComponent(full)));
+  document.getElementById('status').textContent="Копирую в "+newSlug+"...";
+  try{
+    let res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${newSlug}/index.html`,{
+      method:"PUT",
+      headers:{Authorization:`token ${token}`, "Content-Type":"application/json"},
+      body:JSON.stringify({message:`copy ${currentSlug} to ${newSlug}`, content:b64, branch:branch})
+    });
+    if(!res.ok) throw new Error(await res.text());
+    document.getElementById('status').textContent="✅ Скопировано! Новая страница: https://zapahstarosti.ru/"+newSlug+"/ — добавь ее в меню и sitemap.xml";
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка копирования: "+e.message;
+  }
+}
+
+function download(){
+  let slug=document.getElementById('newSlug').value.trim()||document.getElementById('slug').value||'novaya';
+  let full=buildHtml(slug);
+  let blob=new Blob([full],{type:'text/html'});
+  let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
 }
 </script>
 </body></html>
