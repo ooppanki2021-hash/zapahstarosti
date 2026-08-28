@@ -165,7 +165,7 @@ async function loadRaw(){
   if(!slug){ alert("Выбери или впиши slug"); return; }
   document.getElementById('status').textContent="Загружаю "+slug+"...";
   try{
-    let url=`https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${slug}/index.html`;
+    let url=`/${slug}/index.html`;
     let res=await fetch(url);
     if(!res.ok){
       // пробуем без папки — может новая статья
