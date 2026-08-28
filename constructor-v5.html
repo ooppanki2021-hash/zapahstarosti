@@ -93,6 +93,7 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 
 <div style="display:flex; gap:10px">
 <button class="btn-small" onclick="save()" style="padding:10px 18px">💾 Сохранить на сайт</button>
+<button class="btn-small" onclick="copyPage()" style="background:#EEF4FF; color:#5A7A9A; border:1px solid #DCE8F5">📋 Скопировать страницу в новую</button>
 <button class="btn-small" onclick="download()" style="background:white; color:#5A7A9A; border:1px solid #DCE8F5">Скачать index.html</button>
 </div>
 </div>
@@ -272,6 +273,32 @@ function download(){
   let full=build();
   let blob=new Blob([full],{type:'text/html'});
   let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
+}
+
+async function copyPage(){
+  let owner=document.getElementById('owner').value.trim();
+  let repo=document.getElementById('repo').value.trim();
+  let branch=document.getElementById('branch').value.trim()||'main';
+  let token=document.getElementById('token').value.trim();
+  if(!token){ alert("Нужен токен для копирования"); return; }
+  let newSlug=prompt("Новый slug для копии, например: kak-ubrat-zapah-iz-obuvi");
+  if(!newSlug) return;
+  let full=build();
+  // меняем canonical на новый slug
+  full=full.replace(/<link rel="canonical" href="https:\/\/zapahstarosti.ru\/.*?\/">/, `<link rel="canonical" href="https://zapahstarosti.ru/${newSlug}/">`);
+  let b64=btoa(unescape(encodeURIComponent(full)));
+  document.getElementById('status').textContent="Копирую в "+newSlug+"...";
+  try{
+    let res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${newSlug}/index.html`,{
+      method:"PUT",
+      headers:{Authorization:`token ${token}`, "Content-Type":"application/json"},
+      body:JSON.stringify({message:`copy ${currentSlug} to ${newSlug}`, content:b64, branch:branch})
+    });
+    if(!res.ok) throw new Error(await res.text());
+    document.getElementById('status').textContent="✅ Скопировано! Новая страница: https://zapahstarosti.ru/"+newSlug+"/ — не забудь добавить ее в меню и sitemap";
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка копирования: "+e.message;
+  }
 }
 </script>
 </body></html>
