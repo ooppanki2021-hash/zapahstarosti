@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Конструктор v6 — фикс клика</title>
+<link rel="stylesheet" href="/style.css?v=7">
+<style>
+body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
+.box{background:white; border:1px solid #DCE8F5; border-radius:12px; padding:14px; margin:10px 0}
+#editor{border:1px solid #DCE8F5; border-radius:12px; padding:16px; min-height:300px; background:white}
+</style>
+</head><body>
+<div class="container" style="max-width:800px; padding:16px">
+<h1>Конструктор v6</h1>
+<div class="box">
+<select id="slug">
+<option value="chto-takoe-2-nonenal">2-ноненаль</option>
+<option value="kak-otlichit-istochnik-zapakha">Диагностика</option>
+<option value="ubrat-zapah">Тело</option>
+</select>
+<button onclick="test()">Открыть статью</button>
+<div id="status" style="margin-top:10px; color:blue; font-weight:bold">Статус: жду клика</div>
+</div>
+<div class="box"><div id="editor" contenteditable="true">Тут появится статья</div></div>
+</div>
+<script>
+async function test(){
+  document.getElementById('status').textContent="КНОПКА НАЖАТА — функция работает!";
+  let slug=document.getElementById('slug').value;
+  try{
+    let url="/"+slug+"/index.html";
+    document.getElementById('status').textContent="Гружу "+url+"...";
+    let res=await fetch(url);
+    document.getElementById('status').textContent="Ответ: "+res.status;
+    let html=await res.text();
+    document.getElementById('editor').innerHTML=html.substring(0,2000);
+    document.getElementById('status').textContent="✅ Загружено "+html.length+" симв";
+  }catch(e){
+    document.getElementById('status').textContent="Ошибка: "+e.message;
+  }
+}
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32381b14d0366fe',t:'MTc4NzkyMjEwNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
