@@ -1,19 +1,20 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Конструктор v7 — все 26 + инструментарий + копировать</title>
+<title>Конструктор v7.2 — все 26 + инструментарий + копировать</title>
 <link rel="stylesheet" href="/style.css?v=7">
 <style>
 body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
 .box{background:white; border:1px solid #DCE8F5; border-radius:12px; padding:14px; margin:10px 0}
 .toolbar{display:flex; gap:6px; flex-wrap:wrap; padding:10px; background:#EEF4FF; border-radius:10px; position:sticky; top:0; z-index:10}
 .toolbar button{border:1px solid #DCE8F5; background:white; border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer}
+.toolbar select{width:auto; padding:6px 8px; margin:0; font-size:12px; border:1px solid #DCE8F5; background:white; border-radius:8px}
 #editor{border:2px solid #7A9AB8; border-radius:12px; padding:16px; min-height:400px; background:white; outline:none; line-height:1.7}
 input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; border-radius:8px; font-size:13px; margin:3px 0}
 .btn-small{padding:8px 14px; border-radius:999px; border:0; background:#5A7A9A; color:white; cursor:pointer; font-size:12px}
 </style>
 </head><body>
 <div class="container" style="max-width:900px; padding:16px">
-<h1 class="sans" style="font-size:20px">Конструктор v7 — все 26 + инструментарий</h1>
+<h1 class="sans" style="font-size:20px">Конструктор v7.2 — все 26 + инструментарий</h1>
 <p class="small muted">Открывает любую из 26 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз. Работает и на сайте, и с диска (тогда статьи грузятся с zapahstarosti.ru).</p>
 
 <div class="box sans">
@@ -69,8 +70,25 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 
 <div class="box">
 <div class="toolbar sans">
-<button onclick="exec('formatBlock','h2')">H2</button>
-<button onclick="exec('formatBlock','h3')">H3</button>
+<select id="styleSel" onchange="applyStyle(this.value)" title="Стиль для выделенного текста">
+<option value="">Стиль текста…</option>
+<optgroup label="Заголовки">
+<option value="h2">Н2 — крупный заголовок раздела</option>
+<option value="h3">Н3 — подзаголовок поменьше</option>
+</optgroup>
+<optgroup label="Обычный текст">
+<option value="p">Обычный абзац</option>
+<option value="lead">Лид — крупный вводный абзац</option>
+<option value="small">Мелкая подпись, примечание</option>
+</optgroup>
+</select>
+<select id="sizeSel" onchange="applySize(this.value)" title="Размер для выделенного текста">
+<option value="">Размер…</option>
+<option value="2">Мелкий — для подписи</option>
+<option value="4">Чуть крупнее обычного</option>
+<option value="5">Крупный — выделить важное</option>
+<option value="6">Очень крупный</option>
+</select>
 <button onclick="exec('bold')">Жирный</button>
 <button onclick="addLink()">Ссылка</button>
 <button onclick="addAnchor()">Анкор id</button>
@@ -81,7 +99,9 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <button onclick="addNote()">Важное</button>
 <button onclick="addKstati()">Кстати</button>
 <button onclick="addButton()">Кнопка</button>
-<button onclick="addImg()">Картинка</button>
+<button onclick="addImg()" title="Вставить картинку, которая уже лежит в /images/ сайта">Картинка (путь)</button>
+<button onclick="pickImgFromDevice()" title="Выбрать фото на компьютере или телефоне — сожму и залью в /images/ на сайте">📷 Картинка с устройства</button>
+<input type="file" id="imgFile" accept="image/*" style="display:none">
 <input type="color" id="colorPicker" value="#5A7A9A" style="width:32px; height:26px">
 </div>
 <div id="editor" contenteditable="true"><p>Выбери статью и нажми Открыть</p></div>
@@ -90,7 +110,8 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <div class="box sans">
 <input id="title" placeholder="Title SEO — уникальный">
 <textarea id="desc" rows="2" placeholder="Description SEO — уникальный"></textarea>
-<input id="h1" placeholder="H1 — вопрос пользователя">
+<input id="h1" placeholder="H1 — заголовок статьи, он же первый в тексте">
+<div class="small muted">Поле H1 и первый заголовок в тексте — одно и то же: правь где удобнее. Печатаешь здесь — заголовок в тексте обновляется сразу. На странице всегда будет ровно один H1.</div>
 <label class="small"><input type="checkbox" id="noindexBox"> Скрыть от поисковиков (noindex) — галочка стоит = страница скрыта. Снимай только в неделю публикации.</label>
 </div>
 
@@ -206,6 +227,188 @@ function addImg(){
   if(src) document.execCommand('insertHTML',false, `<div class="figure"><img src="${src}" alt="${alt||''}" loading="lazy"><figcaption>${alt||''}</figcaption></div><p></p>`);
 }
 
+// ===== v7.1: стиль и размер для ВЫДЕЛЕННОГО текста =====
+function currentBlock(){
+  var sel=window.getSelection();
+  if(!sel || !sel.rangeCount) return null;
+  var n=sel.getRangeAt(0).startContainer;
+  if(n.nodeType===3) n=n.parentNode;
+  var ed=document.getElementById('editor');
+  while(n && n!==ed){
+    if(/^(P|H1|H2|H3|H4|H5|H6|LI|DIV|BLOCKQUOTE|FIGCAPTION)$/.test(n.nodeName)) return n;
+    n=n.parentNode;
+  }
+  return null;
+}
+function wrapSelectionInSpan(cls){
+  var sel=window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed){ alert('Сначала выдели текст мышкой или пальцем, потом выбирай стиль'); return; }
+  try{
+    var range=sel.getRangeAt(0);
+    var span=document.createElement('span'); span.className=cls;
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    sel.removeAllRanges();
+    var r2=document.createRange(); r2.selectNodeContents(span); sel.addRange(r2);
+  }catch(e){ alert('Не получилось — выдели текст внутри одного абзаца и попробуй снова'); }
+}
+function applyStyle(v){
+  if(!v) return;
+  document.getElementById('styleSel').selectedIndex=0;
+  var hasExec=typeof document.execCommand==='function';
+  if(v==='p'){
+    if(hasExec) document.execCommand('formatBlock',false,'p');
+    var b=currentBlock(); if(b) b.removeAttribute('class');
+  } else if(v==='lead'){
+    if(hasExec) document.execCommand('formatBlock',false,'p');
+    var b2=currentBlock(); if(b2) b2.className='lead';
+  } else if(v==='h2' || v==='h3'){
+    if(hasExec) document.execCommand('formatBlock',false,v);
+  } else if(v==='small'){
+    wrapSelectionInSpan('small muted');
+  }
+}
+function applySize(v){
+  if(!v) return;
+  document.getElementById('sizeSel').selectedIndex=0;
+  if(typeof document.execCommand==='function') document.execCommand('fontSize',false,v);
+}
+// размер из выпадающего списка превращаем в аккуратный span при сохранении
+var FONT_SIZE_MAP={'1':'12px','2':'14px','3':'16px','4':'18px','5':'22px','6':'26px','7':'30px'};
+function sanitizeHtml(html){
+  return html.replace(/<font size="([1-7])"[^>]*>([\s\S]*?)<\/font>/g, function(m,s,inner){
+    return '<span style="font-size:'+(FONT_SIZE_MAP[s]||'16px')+'">'+inner+'</span>';
+  });
+}
+// Enter после крупного заголовка → обычный текст, а не продолжение крупного
+(function(){
+  var ed=document.getElementById('editor');
+  ed.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' || e.shiftKey) return;
+    var sel=window.getSelection();
+    if(!sel || !sel.rangeCount) return;
+    var n=sel.getRangeAt(0).startContainer;
+    if(n.nodeType===3) n=n.parentNode;
+    var inList=false, inHead=false, cur=n;
+    while(cur && cur!==ed){
+      if(cur.nodeName==='LI') inList=true;
+      if(/^H[1-6]$/.test(cur.nodeName)) inHead=true;
+      cur=cur.parentNode;
+    }
+    if(!inHead || inList) return;
+    e.preventDefault();
+    if(typeof document.execCommand==='function'){
+      document.execCommand('insertParagraph');
+      document.execCommand('formatBlock',false,'p');
+      var b=currentBlock(); if(b) b.removeAttribute('class');
+    }
+  });
+})();
+
+// ===== v7.2: поле H1 внизу ↔ первый заголовок в тексте — живая синхронизация =====
+// Печатаешь в поле — заголовок в тексте обновляется сразу (и появляется, если его нет).
+// А если правишь заголовок прямо в тексте — сохранится так, как видно в редакторе.
+(function(){
+  var f=document.getElementById('h1');
+  var ed=document.getElementById('editor');
+  f.addEventListener('input', function(){
+    var v=f.value.trim();
+    if(!v) return;
+    var h=ed.querySelector('h1');
+    if(h){ h.textContent=v; }
+    else{ var el=document.createElement('h1'); el.textContent=v; ed.insertBefore(el, ed.firstChild); }
+  });
+})();
+
+// ===== v7.1: загрузка картинки с компа/телефона =====
+// Сжимаем в браузере (до 1400px, JPEG ~82%) и заливаем прямо в /images/ репозитория
+var savedRange=null;
+function saveSel(){
+  var s=window.getSelection(); var ed=document.getElementById('editor');
+  if(s && s.rangeCount && ed.contains(s.getRangeAt(0).commonAncestorContainer)) savedRange=s.getRangeAt(0).cloneRange();
+}
+function restoreSel(){
+  var ed=document.getElementById('editor'); ed.focus();
+  var s=window.getSelection();
+  if(savedRange && s){ s.removeAllRanges(); s.addRange(savedRange); return; }
+  var r=document.createRange(); r.selectNodeContents(ed); r.collapse(false);
+  if(s){ s.removeAllRanges(); s.addRange(r); }
+}
+function autoImgName(){
+  var d=new Date();
+  function p2(x){ return (x<10?'0':'')+x; }
+  return 'img-'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes())+'.jpg';
+}
+function compressImage(file, maxSide, quality){
+  return new Promise(function(resolve, reject){
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    img.onload=function(){
+      try{
+        var w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+        if(!w || !h){ reject(new Error('Картинка пустая')); return; }
+        var k=Math.min(1, maxSide/Math.max(w,h));
+        var c=document.createElement('canvas');
+        c.width=Math.round(w*k); c.height=Math.round(h*k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        var dataUrl;
+        try{ dataUrl=c.toDataURL('image/jpeg', quality); }
+        catch(err){ reject(new Error('Браузер запретил обработку — открой конструктор на сайте zapahstarosti.ru или скачанным файлом')); return; }
+        URL.revokeObjectURL(url);
+        resolve(dataUrl);
+      }catch(e){ reject(e); }
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); reject(new Error('Файл не читается как картинка. Если это HEIC с iPhone — открой Фото → Поделиться → Дублировать как JPG, или сфотографируй заново')); };
+    img.src=url;
+  });
+}
+async function uploadImgFromFile(file){
+  var status=document.getElementById('status');
+  if(!file) return;
+  var token=document.getElementById('token').value.trim();
+  if(!token){ alert('Чтобы залить картинку на сайт, нужен токен GitHub (поле вверху)'); return; }
+  status.textContent='Обрабатываю картинку ('+Math.round(file.size/1024)+' КБ)…';
+  try{
+    var dataUrl=await compressImage(file, 1400, 0.82);
+    var b64=dataUrl.split(',')[1];
+    var kb=Math.round(b64.length*3/4/1024);
+    var name=prompt('Имя файла латиницей — ляжет в /images/ сайта:', autoImgName());
+    if(!name){ status.textContent='Загрузка картинки отменена.'; return; }
+    if(!/^[a-z0-9-_.]+$/i.test(name)){ status.textContent='Имя только латиницей, цифрами и дефисами'; return; }
+    if(!/\.(jpe?g|png|webp)$/i.test(name)) name+='.jpg';
+    var owner=document.getElementById('owner').value.trim();
+    var repo=document.getElementById('repo').value.trim();
+    var branch=document.getElementById('branch').value.trim()||'main';
+    var sha=null;
+    var ex=await fetch('https://api.github.com/repos/'+owner+'/'+repo+'/contents/images/'+name+'?ref='+branch, {headers:{Authorization:'token '+token}});
+    if(ex.ok){
+      sha=(await ex.json()).sha;
+      if(!confirm('/images/'+name+' уже существует. Заменить?')){ status.textContent='Загрузка отменена.'; return; }
+    }
+    status.textContent='Заливаю на GitHub: images/'+name+' (после сжатия ~'+kb+' КБ)…';
+    var body={message:'upload image '+name+' via constructor v7', content:b64, branch:branch};
+    if(sha) body.sha=sha;
+    var res=await fetch('https://api.github.com/repos/'+owner+'/'+repo+'/contents/images/'+name, {method:'PUT', headers:{Authorization:'token '+token, 'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    if(!res.ok) throw new Error(await res.text());
+    var alt=prompt('Подпись под фото / alt на русском (для SEO, можно оставить пустым):','')||'';
+    restoreSel();
+    if(typeof document.execCommand==='function'){
+      document.execCommand('insertHTML',false, '<div class="figure"><img src="/images/'+name+'" alt="'+alt+'" loading="lazy"><figcaption>'+alt+'</figcaption></div><p></p>');
+    }
+    status.textContent='✅ Картинка залита: /images/'+name+' (~'+kb+' КБ). На сайте появится через 1–10 минут (кэш GitHub).';
+  }catch(e){ status.textContent='Ошибка загрузки картинки: '+(e.message||e); }
+}
+function pickImgFromDevice(){
+  saveSel();
+  var f=document.getElementById('imgFile');
+  f.value='';
+  f.click();
+}
+(function(){
+  var f=document.getElementById('imgFile');
+  if(f) f.addEventListener('change', function(){ uploadImgFromFile(this.files && this.files[0]); });
+})();
+
 let currentSha=null, currentSlug=null, originalHtml=null;
 
 async function load(){
@@ -264,9 +467,16 @@ function buildFromOriginal(slug){
   if(canon) canon.setAttribute("href",`https://zapahstarosti.ru/${slug}/`);
   let content=doc.querySelector(".content");
   if(!content) throw new Error("В исходной странице нет .content");
-  content.innerHTML=document.getElementById('editor').innerHTML;
-  let h1=content.querySelector("h1");
-  if(h1 && h1v) h1.innerHTML=h1v;
+  content.innerHTML=sanitizeHtml(document.getElementById('editor').innerHTML);
+  // v7.2: H1 — что видно в редакторе, то и сохраняется. Ровно один:
+  // лишние убираем, а если в тексте его нет — берём из поля внизу и ставим первым.
+  var h1s=content.querySelectorAll("h1");
+  if(h1s.length===0){
+    var hv=h1v||title||'';
+    if(hv){ var nh=doc.createElement("h1"); nh.innerHTML=hv; content.insertBefore(nh, content.firstChild); }
+  } else {
+    for(var hi=1; hi<h1s.length; hi++) h1s[hi].remove();
+  }
   // noindex по галочке
   let robots=doc.querySelector('meta[name="robots"]');
   if(document.getElementById('noindexBox').checked){
@@ -347,8 +557,13 @@ function buildNewPage(slug){
   let title=document.getElementById('title').value||'Новая статья';
   let desc=document.getElementById('desc').value||'';
   let h1=document.getElementById('h1').value||title;
-  let body=document.getElementById('editor').innerHTML;
-  // v7: если в теле уже есть h1 (например, при копировании страницы) — не добавляем второй
+  let body=sanitizeHtml(document.getElementById('editor').innerHTML);
+  // v7.2: H1 — если в тексте уже есть, второй не ставим; лишние убираем, остаётся первый
+  var h1ms=body.match(/<h1[^>]*>[\s\S]*?<\/h1>/gi);
+  if(h1ms && h1ms.length>1){
+    body=body.replace(/<h1[^>]*>[\s\S]*?<\/h1>/gi,'');
+    body=h1ms[0]+'\n'+body;
+  }
   if(!/<h1[\s>]/i.test(body)) body='<h1>'+h1+'</h1>\n'+body;
   let today=new Date().toLocaleDateString('ru-RU');
   let robotsLine=document.getElementById('noindexBox').checked?'\n<meta name="robots" content="noindex, nofollow">':'';
@@ -458,4 +673,4 @@ function download(){
   let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
 }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32510bc6ade664c',t:'MTc4NzkzODQ1MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32db55f2dc023a0',t:'MTc4ODAyOTA4MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
