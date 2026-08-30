@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Конструктор v7.2 — все 26 + инструментарий + копировать</title>
+<title>Конструктор v7.3 — все 26 + инструментарий + копировать</title>
 <link rel="stylesheet" href="/style.css?v=7">
 <style>
 body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
@@ -14,7 +14,7 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 </style>
 </head><body>
 <div class="container" style="max-width:900px; padding:16px">
-<h1 class="sans" style="font-size:20px">Конструктор v7.2 — все 26 + инструментарий</h1>
+<h1 class="sans" style="font-size:20px">Конструктор v7.3 — все 26 + инструментарий</h1>
 <p class="small muted">Открывает любую из 26 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз. Работает и на сайте, и с диска (тогда статьи грузятся с zapahstarosti.ru).</p>
 
 <div class="box sans">
@@ -115,6 +115,24 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <label class="small"><input type="checkbox" id="noindexBox"> Скрыть от поисковиков (noindex) — галочка стоит = страница скрыта. Снимай только в неделю публикации.</label>
 </div>
 
+<!-- v7.3: окно вставки ссылки со списком статей сайта -->
+<div id="linkModal" style="display:none; position:fixed; inset:0; background:rgba(46,60,80,.45); z-index:50; padding:16px; overflow:auto">
+  <div style="background:white; border-radius:14px; max-width:480px; margin:40px auto; padding:18px; border:1px solid #DCE8F5">
+    <h3 class="sans" style="margin:0 0 10px; font-size:16px">Вставить ссылку</h3>
+    <label class="small muted sans">Куда ведёт ссылка — выбери статью сайта:</label>
+    <select id="linkArticle"><option value="">— выбери статью —</option></select>
+    <label class="small muted sans">…или впиши адрес вручную:</label>
+    <input id="linkUrl" placeholder="/kak-ubrat-zapah-s-divana/ или https://example.com">
+    <label class="small muted sans">Текст ссылки (анкор):</label>
+    <input id="linkText" placeholder="Например: как почистить диван">
+    <div style="display:flex; gap:8px; margin-top:12px">
+      <button class="btn-small" onclick="insertLink()">Вставить</button>
+      <button class="btn-small" onclick="closeLinkModal()" style="background:white; color:#5A7A9A; border:1px solid #DCE8F5">Отмена</button>
+    </div>
+    <div class="small muted" style="margin-top:8px">Выбери статью — адрес подставится сам. Если текст пустой, им станет название статьи.</div>
+  </div>
+</div>
+
 <div style="display:flex; gap:10px; flex-wrap:wrap">
 <button class="btn-small" onclick="save()" style="padding:10px 18px">💾 Сохранить на сайт</button>
 <button class="btn-small" onclick="download()" style="background:white; color:#5A7A9A; border:1px solid #DCE8F5">Скачать index.html</button>
@@ -192,12 +210,98 @@ function exec(c,v){
   else if(v==='h3') document.execCommand('formatBlock',false,'<h3>');
   else document.execCommand(c,false,v||null);
 }
-function addLink(){
-  let url=prompt("URL: /kak-ubrat-zapah-s-divana/ или https://...");
-  if(!url) return;
-  let sel=window.getSelection().toString()||prompt("Текст ссылки:")||url;
-  document.execCommand('insertHTML',false, `<a href="${url}">${sel}</a>`);
+// ===== v7.3: вставка ссылки — список статей сайта + свой адрес =====
+var SITE_ARTICLES=[
+ ['Базовые', [
+   ['/', 'Главная'],
+   ['/kak-otlichit-istochnik-zapakha/', 'Как отличить источник запаха'],
+   ['/chto-takoe-2-nonenal/', 'Что такое 2-ноненаль']
+ ]],
+ ['Тело', [
+   ['/ubrat-zapah/', 'Как уменьшить запах тела'],
+   ['/uhod-za-suhoj-kozhej/', 'Уход за сухой кожей'],
+   ['/odezhda-i-tekstil/', 'Одежда и текстиль'],
+   ['/lekarstva-i-zapah/', 'Лекарства и запах'],
+   ['/kogda-k-vrachu/', 'Когда к врачу'],
+   ['/kak-pogovorit-s-blizkim/', 'Как поговорить с близким']
+ ]],
+ ['Квартира', [
+   ['/zapah-v-kvartire/', 'Как убрать запах в квартире'],
+   ['/kak-ubrat-zapah-s-matrasa/', 'Как убрать запах с матраса'],
+   ['/kak-ubrat-zapah-s-divana/', 'Как убрать запах с дивана'],
+   ['/kak-ubrat-zapah-iz-shkafa/', 'Как убрать запах из шкафа'],
+   ['/kak-ubrat-zapah-v-stiralnoj-mashine/', 'Запах в стиральной машине'],
+   ['/kak-ubrat-zapah-v-sanuzle/', 'Запах в санузле'],
+   ['/ventilyatsiya-i-vlazhnost/', 'Вентиляция и влажность'],
+   ['/karta-kvartiry/', 'Карта квартиры: где искать запах']
+ ]],
+ ['Средства', [
+   ['/sredstva-ot-zapaha/', 'Средства: что нейтрализует, а что маскирует'],
+   ['/poroshok-dlya-tekstila/', 'Порошок для текстиля'],
+   ['/tonik-protirka/', 'Тоник и протирка'],
+   ['/nabor/', 'Набор «Тело + текстиль»'],
+   ['/ochistitel-vozduha/', 'Очиститель воздуха и устройства']
+ ]],
+ ['Диагностика и интерактив', [
+   ['/kviz/', 'Квиз: где источник запаха'],
+   ['/material-metod/', 'Таблица материал-метод']
+ ]],
+ ['О проекте', [
+   ['/o-proekte/', 'О проекте'],
+   ['/karta-osetii/', 'Карта Осетии: где собираем кору дуба'],
+   ['/faq/', 'FAQ — 20 ответов']
+ ]]
+];
+var __linkSelRange=null;
+function openLinkModal(){
+  var sel=window.getSelection();
+  var ed=document.getElementById('editor');
+  __linkSelRange=null;
+  if(sel && sel.rangeCount && ed.contains(sel.getRangeAt(0).commonAncestorContainer)) __linkSelRange=sel.getRangeAt(0).cloneRange();
+  document.getElementById('linkText').value=(sel?sel.toString():'').trim();
+  document.getElementById('linkUrl').value='';
+  document.getElementById('linkArticle').selectedIndex=0;
+  document.getElementById('linkModal').style.display='block';
 }
+function closeLinkModal(){ document.getElementById('linkModal').style.display='none'; }
+function insertLink(){
+  var artSel=document.getElementById('linkArticle');
+  var art=artSel.value;
+  var url=document.getElementById('linkUrl').value.trim();
+  var txt=document.getElementById('linkText').value.trim();
+  if(!art && !url){ alert('Выбери статью из списка или впиши адрес'); return; }
+  var href=art||url;
+  if(!/^(https?:|\/|#|mailto:|tel:)/i.test(href)) href='https://'+href;
+  if(!txt) txt = art ? artSel.options[artSel.selectedIndex].textContent : href;
+  closeLinkModal();
+  var ed=document.getElementById('editor');
+  ed.focus();
+  var sel=window.getSelection();
+  if(__linkSelRange && sel){ sel.removeAllRanges(); sel.addRange(__linkSelRange); }
+  else if(sel){ var r=document.createRange(); r.selectNodeContents(ed); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); }
+  if(typeof document.execCommand==='function') document.execCommand('insertHTML',false,'<a href="'+href+'">'+txt+'</a>');
+}
+function addLink(){ openLinkModal(); }
+(function(){
+  // собрать список статей в модалке
+  var selEl=document.getElementById('linkArticle');
+  if(selEl){
+    for(var g=0; g<SITE_ARTICLES.length; g++){
+      var og=document.createElement('optgroup');
+      og.setAttribute('label', SITE_ARTICLES[g][0]);
+      for(var i=0; i<SITE_ARTICLES[g][1].length; i++){
+        var o=document.createElement('option');
+        o.value=SITE_ARTICLES[g][1][i][0];
+        o.textContent=SITE_ARTICLES[g][1][i][1];
+        og.appendChild(o);
+      }
+      selEl.appendChild(og);
+    }
+  }
+  var m=document.getElementById('linkModal');
+  if(m) m.addEventListener('click', function(e){ if(e.target===this) closeLinkModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLinkModal(); });
+})();
 function addAnchor(){
   let id=prompt("ID анкора без пробелов, например pochemu-pahnet");
   if(!id) return;
@@ -673,4 +777,4 @@ function download(){
   let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
 }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32db55f2dc023a0',t:'MTc4ODAyOTA4MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</body></html>
