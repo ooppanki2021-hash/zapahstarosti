@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Конструктор v7.3 — все 26 + инструментарий + копировать</title>
+<title>Конструктор v7.4 — все 26 + инструментарий + копировать</title>
 <link rel="stylesheet" href="/style.css?v=7">
 <style>
 body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
@@ -15,7 +15,7 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 </style>
 </head><body>
 <div class="container" style="max-width:900px; padding:16px">
-<h1 class="sans" style="font-size:20px">Конструктор v7.3 — все 26 + инструментарий</h1>
+<h1 class="sans" style="font-size:20px">Конструктор v7.4 — все 26 + инструментарий</h1>
 <p class="small muted">Открывает любую из 26 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз. Работает и на сайте, и с диска (тогда статьи грузятся с zapahstarosti.ru).</p>
 
 <div class="box sans">
@@ -381,10 +381,68 @@ function applySize(v){
 // размер из выпадающего списка превращаем в аккуратный span при сохранении
 var FONT_SIZE_MAP={'1':'12px','2':'14px','3':'16px','4':'18px','5':'22px','6':'26px','7':'30px'};
 function sanitizeHtml(html){
-  return html.replace(/<font size="([1-7])"[^>]*>([\s\S]*?)<\/font>/g, function(m,s,inner){
+  html=html.replace(/<font size="([1-7])"[^>]*>([\s\S]*?)<\/font>/g, function(m,s,inner){
     return '<span style="font-size:'+(FONT_SIZE_MAP[s]||'16px')+'">'+inner+'</span>';
   });
+  // v7.4: страховка при сохранении — чужие стили (CSS-переменные --tw-... и чужие шрифты
+  // font-family) на сайт не пускаем, даже если они как-то попали в редактор.
+  html=html.replace(/\sstyle="[^"]*(?:--|font-family)[^"]*"/gi,'');
+  // v7.4: скрипты и стили в текст статьи не переносим
+  html=html.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi,'');
+  return html;
 }
+
+// ===== v7.4: чистка вставляемого текста =====
+// Когда копируешь текст из другого места (чат, Ворд, чужой сайт), вместе с ним
+// прилетают чужие оформления: стили, классы, шрифты. Здесь они вычищаются:
+// остаётся только структура — абзацы, заголовки, списки, ссылки.
+function cleanPastedHtml(html){
+  try{
+    var doc=new DOMParser().parseFromString('<div id="__paste">'+html+'</div>','text/html');
+    var root=doc.getElementById('__paste');
+    if(!root) return '';
+    root.querySelectorAll('script,style,iframe,object,embed,form,input,button,meta,link').forEach(function(el){ el.remove(); });
+    root.querySelectorAll('img').forEach(function(el){
+      var s=el.getAttribute('src')||'';
+      if(s.indexOf('/images/')!==0) el.remove(); // чужие и base64-картинки не переносим
+      else { el.removeAttribute('style'); el.removeAttribute('class'); }
+    });
+    root.querySelectorAll('*').forEach(function(el){
+      var keepHref=null, keepImg=null;
+      if(el.tagName==='A'){
+        var href=el.getAttribute('href')||'';
+        if(/^(https?:\/\/|mailto:|\/|#)/i.test(href)) keepHref=href;
+      }
+      if(el.tagName==='IMG'){
+        keepImg={src:el.getAttribute('src')||'', alt:el.getAttribute('alt')||''};
+      }
+      var attrs=Array.prototype.slice.call(el.attributes);
+      for(var i=0;i<attrs.length;i++) el.removeAttribute(attrs[i].name);
+      if(keepHref!==null) el.setAttribute('href',keepHref);
+      if(keepImg){ el.setAttribute('src',keepImg.src); el.setAttribute('alt',keepImg.alt); el.setAttribute('loading','lazy'); }
+    });
+    return root.innerHTML;
+  }catch(e){ return ''; }
+}
+
+// v7.4: вставка (Ctrl+V) и перетаскивание в редактор — только через чистку
+(function(){
+  var ed=document.getElementById('editor');
+  if(!ed) return;
+  function insertClean(e){
+    var cd=e.clipboardData||e.dataTransfer||window.clipboardData;
+    if(!cd) return;
+    e.preventDefault();
+    var html=cd.getData('text/html')||'';
+    var text=cd.getData('text/plain')||'';
+    var clean=html?cleanPastedHtml(html):'';
+    if(typeof document.execCommand!=='function') return;
+    if(clean) document.execCommand('insertHTML',false,clean);
+    else if(text) document.execCommand('insertText',false,text);
+  }
+  ed.addEventListener('paste',insertClean);
+  ed.addEventListener('drop',insertClean);
+})();
 // Enter после крупного заголовка → обычный текст, а не продолжение крупного
 (function(){
   var ed=document.getElementById('editor');
@@ -561,8 +619,16 @@ async function load(){
 // Существующая страница НЕ пересобирается по шаблону: правки вшиваются в её собственный
 // HTML. Меню, favicon, метрика, верификация и noindex остаются ровно как были.
 function buildFromOriginal(slug){
+  // v7.4: блок Яндекс.Метрики НЕ пропускаем через DOMParser. Разборщик без скриптов
+  // всегда выбрасывает <div> из <noscript> в <body> — счётчик ломается (пиксель
+  // грузится у всех, визиты считаются вдвое). Вырезаем блок до разбора и вставляем
+  // обратно эталонный после — заодно чинятся страницы, сохранённые старыми версиями.
+  var srcHtml=originalHtml, hasMet=false;
+  var MO='<!-- Yandex.Metrika counter -->', MC='<!-- /Yandex.Metrika counter -->';
+  var i1=srcHtml.indexOf(MO), i2=srcHtml.indexOf(MC);
+  if(i1>=0 && i2>i1){ srcHtml=srcHtml.slice(0,i1)+'<!--ZAPMETRIKA-->'+srcHtml.slice(i2+MC.length); hasMet=true; }
   let parser=new DOMParser();
-  let doc=parser.parseFromString(originalHtml,"text/html");
+  let doc=parser.parseFromString(srcHtml,"text/html");
   let title=document.getElementById('title').value.trim();
   let desc=document.getElementById('desc').value.trim();
   let h1v=document.getElementById('h1').value.trim();
@@ -588,7 +654,9 @@ function buildFromOriginal(slug){
     if(!robots){ robots=doc.createElement("meta"); robots.setAttribute("name","robots"); doc.head.appendChild(robots); }
     robots.setAttribute("content","noindex, nofollow");
   } else if(robots){ robots.remove(); }
-  return "<!DOCTYPE html>\n"+doc.documentElement.outerHTML;
+  var out="<!DOCTYPE html>\n"+doc.documentElement.outerHTML;
+  if(hasMet) out=out.replace('<!--ZAPMETRIKA-->', function(){ return METRIKA_HEAD; });
+  return out;
 }
 
 // ===== v7: ГЛАВНЫЙ ФИКС =====
