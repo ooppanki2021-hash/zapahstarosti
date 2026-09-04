@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Конструктор v7.4 — все 26 + инструментарий + копировать</title>
+<title>Конструктор v7.4 — все 25 + инструментарий + копировать</title>
 <link rel="stylesheet" href="/style.css?v=7">
 <style>
 body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
@@ -15,8 +15,8 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 </style>
 </head><body>
 <div class="container" style="max-width:900px; padding:16px">
-<h1 class="sans" style="font-size:20px">Конструктор v7.4 — все 26 + инструментарий</h1>
-<p class="small muted">Открывает любую из 26 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз. Работает и на сайте, и с диска (тогда статьи грузятся с zapahstarosti.ru).</p>
+<h1 class="sans" style="font-size:20px">Конструктор v7.4 — все 25 + инструментарий</h1>
+<p class="small muted">Открывает любую из 25 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз. Работает и на сайте, и с диска (тогда статьи грузятся с zapahstarosti.ru).</p>
 
 <div class="box sans">
 <h3 style="margin:0 0 6px">GitHub — один раз для сохранения</h3>
@@ -46,7 +46,6 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 <option value="ventilyatsiya-i-vlazhnost">Квартира — Вентиляция</option>
 <option value="karta-kvartiry">Квартира — Карта квартиры</option>
 <option value="odezhda-i-tekstil">Тело — Одежда и текстиль</option>
-<option value="uhod-za-suhoj-kozhej">Тело — Сухая кожа</option>
 <option value="lekarstva-i-zapah">Тело — Лекарства</option>
 <option value="kogda-k-vrachu">Тело — Когда к врачу</option>
 <option value="kak-pogovorit-s-blizkim">Тело — Как поговорить с близким</option>
@@ -220,7 +219,6 @@ var SITE_ARTICLES=[
  ]],
  ['Тело', [
    ['/ubrat-zapah/', 'Как уменьшить запах тела'],
-   ['/uhod-za-suhoj-kozhej/', 'Уход за сухой кожей'],
    ['/odezhda-i-tekstil/', 'Одежда и текстиль'],
    ['/lekarstva-i-zapah/', 'Лекарства и запах'],
    ['/kogda-k-vrachu/', 'Когда к врачу'],
@@ -666,7 +664,7 @@ var SCR_OPEN='<scr'+'ipt type="text/javascript">';
 var SCR_CLOSE='</scr'+'ipt>';
 var CMT_OPEN='<'+'!-- Yandex.Metrika counter '+'-->';
 var CMT_CLOSE='<'+'!-- /Yandex.Metrika counter '+'-->';
-var METRIKA_HEAD=CMT_OPEN+SCR_OPEN+'(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document, \'script\', \'https://mc.yandex.ru/metrika/tag.js?id=111871686\', \'ym\');ym(111871686, \'init\', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});'+SCR_CLOSE+'<noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript>'+CMT_CLOSE;
+var METRIKA_HEAD=CMT_OPEN+SCR_OPEN+'(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments);};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document, \'script\', \'https://mc.yandex.ru/metrika/tag.js?id=111871686\', \'ym\');ym(111871686, \'init\', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});'+SCR_CLOSE+'<noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript>'+CMT_CLOSE;
 var DROPDOWN_JS='<scr'+'ipt>'+"\ndocument.addEventListener('click', function(e){\n  const toggle = e.target.closest('.dropdown-toggle');\n  if(toggle){\n    e.preventDefault();\n    const dd = toggle.closest('.dropdown');\n    const isOpen = dd.classList.contains('open');\n    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));\n    if(!isOpen) dd.classList.add('open');\n  } else {\n    if(!e.target.closest('.dropdown')){\n      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));\n    }\n  }\n});\n"+'</scr'+'ipt>';
 
 // Полное настоящее меню сайта — для НОВЫХ страниц (v7: все пункты, как на сайте)
@@ -686,7 +684,6 @@ var FULL_NAV = `<nav class="nav sans">
 <a class="dropdown-toggle" href="/ubrat-zapah/">Тело</a>
 <div class="dropdown-menu">
 <a href="/ubrat-zapah/">Как уменьшить запах тела</a>
-<a href="/uhod-za-suhoj-kozhej/">Уход за сухой кожей</a>
 <a href="/odezhda-i-tekstil/">Одежда и текстиль</a>
 <a href="/lekarstva-i-zapah/">Лекарства и запах</a>
 <a href="/kogda-k-vrachu/">Когда к врачу</a>
@@ -748,7 +745,7 @@ function buildNewPage(slug){
 <meta name="description" content="${desc}">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" href="/images/favicon.png" type="image/png">
-<link rel="canonical" href="https://zapahstarosti.ru/${slug}/"><link rel="stylesheet" href="/style.css?v=5">
+<link rel="canonical" href="https://zapahstarosti.ru/${slug}/"><link rel="stylesheet" href="/style.css?v=6">
 ${METRIKA_HEAD}
 </head><body>
 <header class="header"><div class="container header-inner">
