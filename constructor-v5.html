@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Конструктор v7.4 — все 25 + инструментарий + копировать</title>
+<title>Конструктор v7.5 — все 25 + инструментарий + копировать</title>
 <link rel="stylesheet" href="/style.css?v=7">
 <style>
 body{font-family:-apple-system, sans-serif; background:#F6F9FF; font-size:14px}
@@ -15,7 +15,7 @@ input, select, textarea{width:100%; padding:8px 10px; border:1px solid #DCE8F5; 
 </style>
 </head><body>
 <div class="container" style="max-width:900px; padding:16px">
-<h1 class="sans" style="font-size:20px">Конструктор v7.4 — все 25 + инструментарий</h1>
+<h1 class="sans" style="font-size:20px">Конструктор v7.5 — все 25 + инструментарий</h1>
 <p class="small muted">Открывает любую из 25 статей, можно править и скопировать любую страницу в новую. Токен запоминается один раз. Работает и на сайте, и с диска (тогда статьи грузятся с zapahstarosti.ru).</p>
 
 <div class="box sans">
@@ -737,6 +737,28 @@ function buildNewPage(slug){
   if(!/<h1[\s>]/i.test(body)) body='<h1>'+h1+'</h1>\n'+body;
   let today=new Date().toLocaleDateString('ru-RU');
   let robotsLine=document.getElementById('noindexBox').checked?'\n<meta name="robots" content="noindex, nofollow">':'';
+  // v7.5: OG-теги + JSON-LD для НОВЫХ страниц (существующие правки сохраняют свои в buildFromOriginal)
+  // Картинка — общая (home.jpg), всегда существует. Уникальную карточку под новую страницу
+  // можно сгенерировать отдельно и поправить og:image вручную.
+  let ogimg='https://zapahstarosti.ru/images/og/home.jpg';
+  let ogq=function(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');};
+  let OG_META='<!--OG-START-->\n'
+   +'<meta property="og:type" content="website">\n'
+   +'<meta property="og:site_name" content="Запах старости — научно-практический ресурс">\n'
+   +'<meta property="og:locale" content="ru_RU">\n'
+   +'<meta property="og:title" content="'+ogq(title)+'">\n'
+   +'<meta property="og:description" content="'+ogq(desc)+'">\n'
+   +'<meta property="og:url" content="https://zapahstarosti.ru/'+slug+'/">\n'
+   +'<meta property="og:image" content="'+ogimg+'">\n'
+   +'<meta property="og:image:width" content="1200">\n'
+   +'<meta property="og:image:height" content="630">\n'
+   +'<meta property="og:image:alt" content="'+ogq(title)+'">\n'
+   +'<meta name="twitter:card" content="summary_large_image">\n'
+   +'<!--OG-END-->\n';
+  let OG_JSON='<!--JSONLD-START-->\n'
+   +'<scr'+'ipt type="application/ld+json">\n'
+   +JSON.stringify({"@context":"https://schema.org","@type":"Article","headline":title,"description":desc,"url":"https://zapahstarosti.ru/"+slug+"/","inLanguage":"ru","image":ogimg,"author":{"@type":"Person","name":"Инна Кучиева","url":"https://zapahstarosti.ru/o-proekte/"},"publisher":{"@type":"Organization","name":"запах старости.ru","url":"https://zapahstarosti.ru"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://zapahstarosti.ru/"+slug+"/"}},null,2)
+   +'\n</scr'+'ipt>\n<!--JSONLD-END-->\n';
   return `<!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8">
 <meta name="yandex-verification" content="e3e7231de3258122" />${robotsLine}
@@ -746,7 +768,7 @@ function buildNewPage(slug){
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" href="/images/favicon.png" type="image/png">
 <link rel="canonical" href="https://zapahstarosti.ru/${slug}/"><link rel="stylesheet" href="/style.css?v=6">
-${METRIKA_HEAD}
+${OG_META}${OG_JSON}${METRIKA_HEAD}
 </head><body>
 <header class="header"><div class="container header-inner">
 <a class="logo" href="/">запах <em>старости</em>.ru</a>
