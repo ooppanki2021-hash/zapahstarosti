@@ -93,3 +93,12 @@ p{margin:0 0 16px}
   .leadmagnet{align-items:stretch; flex-direction:column; gap:12px}
   .leadmagnet .btn{align-self:flex-start}
 }
+
+/* тело статьи — нормальный размер и цвет (было вставлено из Word с 13px) */
+.article-body{font-size:17px; line-height:1.65; color:var(--text)}
+.article-body h2{margin:28px 0 12px}
+.article-body ul,.article-body ol{margin:12px 0 12px 22px}
+.article-body li{margin-bottom:7px}
+.article-body table{width:100%; border-collapse:collapse; margin:14px 0}
+.article-body th,.article-body td{padding:9px 11px; border:1px solid #e0d8c8; text-align:left; vertical-align:top}
+.article-body th{background:#f7f3ea; font-weight:600}
