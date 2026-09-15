@@ -100,6 +100,31 @@ nav button.on{background:var(--ochre);color:#1a1510;border-color:var(--ochre);fo
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--ochre));border-radius:4px;transition:width .4s}
 .bar-label{font-size:13px;color:var(--dim);text-align:right}
 
+/* ---------- ШАГИ С ПОДШАГАМИ ---------- */
+.step{border-bottom:1px solid var(--line)}
+.step:last-child{border:none}
+.step-head{display:flex;gap:12px;align-items:flex-start;padding:13px 0;cursor:pointer}
+.step-head:hover .m-name{color:var(--accent)}
+.step-main{flex:1;min-width:0}
+.step.done .m-name{color:var(--dim)}
+.step.done .dot{background:var(--ochre);border-color:var(--ochre)}
+.chev{color:var(--dim);font-size:13px;padding:3px 2px;transition:.2s;flex:0 0 auto}
+.chev.up{transform:rotate(180deg);color:var(--ochre)}
+.sub-bar{height:4px;background:var(--panel2);border-radius:3px;overflow:hidden;margin:8px 0 4px;max-width:210px}
+.sub-bar i{display:block;height:100%;background:var(--green);border-radius:3px;transition:width .3s}
+.sub-count{font-size:11.5px;color:var(--dim);letter-spacing:.04em}
+.sub-list{padding:2px 0 14px 27px}
+.sub-item{display:flex;gap:10px;align-items:flex-start;padding:7px 0}
+.sub-item.done .sub-txt{text-decoration:line-through;color:var(--dim)}
+.sub-txt{font-size:14.5px;line-height:1.45}
+.box-x{
+  width:18px;height:18px;flex:0 0 18px;margin-top:2px;border:2px solid var(--line);
+  border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:transparent;transition:.15s;user-select:none;
+}
+.box-x:hover{border-color:var(--ochre)}
+.sub-item.done .box-x{background:var(--done);border-color:var(--done);color:#dff0e2}
+
 /* ---------- КАЛЕНДАРЬ ---------- */
 .day{border-left:2px solid var(--line);padding:0 0 16px 15px;margin-left:5px;position:relative}
 .day:before{
@@ -302,7 +327,9 @@ body.locked{overflow:hidden}
 <section id="miles" class="hide">
   <div class="panel">
     <h2>Вехи проекта</h2>
-    <div class="hint" style="margin:0 0 16px">Без дат — намеренно. Веха либо пройдена, либо нет. Отмечай сама, когда случится.</div>
+    <div class="hint" style="margin:0 0 16px">Нажми на шаг — раскроются подшаги. Отмечай их по мере выполнения: когда закрыты все, шаг закрывается сам.<br><br>
+    Дат нет намеренно — сроки сдвигаются, а просрочки давят. Вместо дат указано <b>сколько времени занимает</b> и <b>сколько стоит</b>.<br><br>
+    Где написано <b>ВАРИАНТ А / Б</b> — это развилка, выбрать нужно что-то одно.</div>
     <div id="mileList"></div>
   </div>
 </section>
@@ -461,18 +488,123 @@ const DEFAULT_TASKS = [
 ];
 
 const DEFAULT_MILES = [
-  {n:'Формулы разработаны',        d:'5 рецептур с граммовками, INCI, технологией', done:true},
-  {n:'Сайт построен',              d:'26 страниц, научная база, аналитика', done:true},
-  {n:'Упаковка отрисована',        d:'Лица, спины, корешки, логотип', done:true},
-  {n:'Смета и план готовы',        d:'Три сценария бюджета, критический путь', done:true},
-  {n:'Сайт вычищен и переписан',   d:'Тексты по AUDIO, страницы открыты для поиска', done:false},
-  {n:'Производство найдено',       d:'Обзвон, выбор площадки, договорённость по давальческому сырью', done:false},
-  {n:'СГР подано',                 d:'Самый долгий документ — 1–1,5 месяца', done:false},
-  {n:'СГР получено',               d:'Без него нельзя печатать тираж упаковки', done:false},
-  {n:'Образцы сварены',            d:'Первая проба на реальном оборудовании', done:false},
-  {n:'Упаковка напечатана',        d:'Только после получения номера документа', done:false},
-  {n:'Первая партия выпущена',     d:'Продукт существует физически', done:false},
-  {n:'Карточка на маркетплейсе',   d:'Первая продажа незнакомому человеку', done:false}
+{n:'Формулы разработаны', d:'5 рецептур с граммовками, INCI, технологией', done:true, sub:[
+  {t:'Мыло-синдет pH 5,3 — 38–39 брусков', done:true},
+  {t:'Гель для душа 5 л, pH 5,2', done:true},
+  {t:'Дезодорант-ролик без алюминия и спирта', done:true},
+  {t:'Порошок для цветного — без перкарбоната', done:true},
+  {t:'Порошок для светлого — перкарбонат 12%', done:true}
+]},
+
+{n:'Сайт построен', d:'26 страниц, научная база, аналитика', done:true, sub:[
+  {t:'Домен, хостинг, HTTPS', done:true},
+  {t:'26 страниц написаны', done:true},
+  {t:'Метрика и Вебмастер подключены', done:true},
+  {t:'Технический аудит пройден — ошибок нет', done:true}
+]},
+
+{n:'Упаковка отрисована', d:'Лица, спины, корешки, логотип', done:true, sub:[
+  {t:'Лицо порошка цветного и светлого', done:true},
+  {t:'Спины: состав, INCI, юрблок', done:true},
+  {t:'Корешки обоих порошков', done:true},
+  {t:'Логотип: кольца, лист, «40+» охрой', done:true}
+]},
+
+{n:'Смета и план готовы', d:'Три сценария бюджета, критический путь', done:true, sub:[
+  {t:'Сценарии: 1 SKU / 3 SKU / линейка', done:true},
+  {t:'Скрытые расходы посчитаны', done:true},
+  {t:'9 вопросов для обзвона производств', done:true}
+]},
+
+{n:'ШАГ 5. Сайт вычищен и переписан', d:'⏱ 3–4 недели · 💰 0 ₽ · делается своими руками', done:false, sub:[
+  {t:'Зачистка: себестоимость, хурма, обрывок черновика', done:true},
+  {t:'Починена читаемость /ubrat-zapah/', done:true},
+  {t:'Удалён мусорный sitemap (1).xml', done:true},
+  {t:'Эталон: переписать /poroshok-dlya-tekstila/ по AUDIO', done:false},
+  {t:'Переписать /sredstva-ot-zapaha/ — убрать дубль, добавить энзимы и цеолиты', done:false},
+  {t:'Развести /zapah-v-kvartire/ (хаб) и /karta-kvartiry/ (навигатор)', done:false},
+  {t:'Переписать /odezhda-i-tekstil/ — про 40°С и кондиционер', done:false},
+  {t:'Уникализировать шаблонный хвост на 14 страницах', done:false},
+  {t:'Открыть первые 2–3 страницы: убрать noindex, sitemap, переобход', done:false},
+  {t:'Через 2 недели — следующая партия страниц', done:false}
+]},
+
+{n:'ШАГ 6. Производство найдено', d:'⏱ 2–3 недели · 💰 0 ₽ на этапе переговоров', done:false, sub:[
+  {t:'Составить список 8–10 контрактных производств', done:false},
+  {t:'Обзвонить первые 3 по списку из 9 вопросов', done:false},
+  {t:'Спросить главное: берут ли давальческое сырьё', done:false},
+  {t:'Спросить: есть ли линия сухого смешивания (для порошка)', done:false},
+  {t:'Спросить: кто оформляет СГР — они или я', done:false},
+  {t:'Запросить цены при 300 / 500 / 1000 / 3000 шт', done:false},
+  {t:'Свести ответы в таблицу, сравнить', done:false},
+  {t:'ВЫБОР: площадка с полным циклом или дешевле + СГР сама', done:false},
+  {t:'Подписать договор и NDA на рецептуру', done:false}
+]},
+
+{n:'ШАГ 7. Документы запущены', d:'⏱ 1–1,5 месяца ожидания · 💰 25–100 тыс ₽ · САМЫЙ ДОЛГИЙ', done:false, sub:[
+  {t:'Зарегистрировать ИП или ООО, если ещё нет', done:false},
+  {t:'Выбрать ОКВЭД: производство бытовой химии', done:false},
+  {t:'Уточнить противоречие: ТР ЕАЭС 048/2019 или его нет', done:false},
+  {t:'Найти орган по сертификации, запросить смету', done:false},
+  {t:'Передать рецептуру и документы на сырьё', done:false},
+  {t:'Оплатить и подать заявление на СГР', done:false},
+  {t:'⏳ ЖДАТЬ 1–1,5 месяца — в это время делать другое', done:false},
+  {t:'Получить номер СГР — записать его', done:false},
+  {t:'Проверить: документ оформлен на меня, не на завод', done:false}
+]},
+
+{n:'ШАГ 8. Доказательства и защита имени', d:'⏱ 2–4 недели · 💰 85–220 тыс ₽ · можно отложить', done:false, sub:[
+  {t:'ВАРИАНТ А: сделать headspace-тест GC-MS — 50–150 тыс ₽', done:false},
+  {t:'ВАРИАНТ Б: пропустить, но на упаковке не писать об эффективности', done:false},
+  {t:'Запросить цены у 3 лабораторий на анализ «дуб / хурма / плацебо»', done:false},
+  {t:'Подать заявку в Роспатент, 3 класс — 35–70 тыс ₽', done:false},
+  {t:'Проверить имя на занятость перед подачей', done:false}
+]},
+
+{n:'ШАГ 9. Образцы сварены и одобрены', d:'⏱ 2–4 недели · 💰 10–30 тыс ₽ за адаптацию', done:false, sub:[
+  {t:'Передать рецептуру технологу производства', done:false},
+  {t:'Согласовать адаптацию под их оборудование', done:false},
+  {t:'Получить пробную партию образцов', done:false},
+  {t:'Проверить: pH 1% раствора 9,8–10,5', done:false},
+  {t:'Проверить: не красит белое бельё', done:false},
+  {t:'Постирать реальное бельё — оценить результат', done:false},
+  {t:'Дать 5–7 людям 40+ на тест, собрать отзывы', done:false},
+  {t:'Утвердить финальную рецептуру письменно', done:false}
+]},
+
+{n:'ШАГ 10. Упаковка напечатана', d:'⏱ 2–3 недели · 💰 25–40 тыс ₽ · ТОЛЬКО ПОСЛЕ НОМЕРА СГР', done:false, sub:[
+  {t:'⛔ СТОП-ПРОВЕРКА: номер СГР на руках?', done:false},
+  {t:'Вписать номер СГР в макет корешка', done:false},
+  {t:'Вписать реквизиты юрлица и адрес', done:false},
+  {t:'Отдать макеты дизайнеру на допечатную подготовку', done:false},
+  {t:'ВАРИАНТ А: дизайнер за 50–150 тыс — вектор и полная подготовка', done:false},
+  {t:'ВАРИАНТ Б: минимальная правка макетов — дешевле, быстрее', done:false},
+  {t:'Заказать пробный образец коробки до тиража', done:false},
+  {t:'Проверить цвета вживую: охра не ушла в жёлтый', done:false},
+  {t:'Запустить тираж', done:false}
+]},
+
+{n:'ШАГ 11. Первая партия выпущена', d:'⏱ 3–4 недели · 💰 60–120 тыс ₽ · продукт существует', done:false, sub:[
+  {t:'Согласовать объём партии — 300–500 шт', done:false},
+  {t:'Оплатить производство', done:false},
+  {t:'Проконтролировать закладку сырья', done:false},
+  {t:'Принять партию, проверить на брак', done:false},
+  {t:'Организовать хранение +5…+25 °С', done:false},
+  {t:'Сделать маркировку Честный ЗНАК, если нужна', done:false}
+]},
+
+{n:'ШАГ 12. Продажи пошли', d:'⏱ 3–6 недель · 💰 70–210 тыс ₽ на съёмку и продвижение', done:false, sub:[
+  {t:'Фотосъёмка для карточек — 20–60 тыс ₽', done:false},
+  {t:'Написать текст карточки по AUDIO', done:false},
+  {t:'ВАРИАНТ А: Wildberries — больше трафика, выше конкуренция', done:false},
+  {t:'ВАРИАНТ Б: Ozon — меньше трафика, легче стартовать', done:false},
+  {t:'ВАРИАНТ В: только свой сайт — вся маржа, но трафик с нуля', done:false},
+  {t:'Загрузить карточку, пройти модерацию', done:false},
+  {t:'Связать сайт и карточку ссылками', done:false},
+  {t:'Первое продвижение — 50–150 тыс ₽', done:false},
+  {t:'🎉 ПЕРВАЯ ПРОДАЖА НЕЗНАКОМОМУ ЧЕЛОВЕКУ', done:false},
+  {t:'Собрать первые 10 отзывов', done:false}
+]}
 ];
 
 const QUOTES = [
@@ -551,15 +683,26 @@ function renderToday(){
 
 function renderProgress(){
   const done = S.miles.filter(m=>m.done).length;
-  const pct = Math.round(done/S.miles.length*100);
+  const pct  = Math.round(done/S.miles.length*100);
   document.getElementById('barFill').style.width = pct+'%';
-  document.getElementById('barLabel').textContent = `пройдено ${done} из ${S.miles.length} этапов`;
 
-  const next = S.miles.filter(m=>!m.done).slice(0,3);
+  // сколько мелких действий закрыто всего
+  let sd=0, sa=0;
+  S.miles.forEach(m=>{ if(m.sub){ sa+=m.sub.length; sd+=m.sub.filter(x=>x.done).length; } });
+  document.getElementById('barLabel').textContent =
+    `пройдено ${done} из ${S.miles.length} шагов · ${sd} из ${sa} действий`;
+
+  const next = S.miles.filter(m=>!m.done).slice(0,1);
   document.getElementById('miniMiles').innerHTML = next.length
-    ? '<div class="hint" style="margin:0 0 8px"><b>Впереди:</b></div>' +
-      next.map(m=>`<div class="mile"><div class="dot"></div><div><div class="m-name">${esc(m.n)}</div><div class="m-desc">${esc(m.d)}</div></div></div>`).join('')
-    : '<div class="hint"><b>Все вехи пройдены.</b></div>';
+    ? next.map(m=>{
+        const sub=(m.sub||[]).filter(s=>!s.done).slice(0,3);
+        return `<div class="hint" style="margin:0 0 9px"><b>Сейчас идёт:</b></div>
+        <div class="m-name">${esc(m.n)}</div>
+        <div class="m-desc" style="margin-bottom:10px">${esc(m.d)}</div>
+        ${sub.length?'<div class="hint" style="margin:0 0 6px">Ближайшие действия:</div>':''}
+        ${sub.map(s=>`<div class="sub-item"><div class="box-x" style="cursor:default">·</div><div class="sub-txt">${esc(s.t)}</div></div>`).join('')}`;
+      }).join('')
+    : '<div class="hint"><b>Все шаги пройдены.</b></div>';
 }
 
 function renderCal(){
@@ -610,11 +753,44 @@ function renderCal(){
 }
 
 function renderMiles(){
-  document.getElementById('mileList').innerHTML = S.miles.map(m=>`
-    <div class="mile ${m.done?'done':''}">
-      <div class="dot" onclick="toggleMile('${m.id}')"></div>
-      <div><div class="m-name">${esc(m.n)}</div><div class="m-desc">${esc(m.d)}</div></div>
-    </div>`).join('');
+  document.getElementById('mileList').innerHTML = S.miles.map(m=>{
+    const sub = m.sub||[];
+    const dn  = sub.filter(s=>s.done).length;
+    const all = sub.length;
+    const isOpen = openMile.has(m.id);
+    const auto = all && dn===all;
+    return `
+    <div class="step ${m.done||auto?'done':''}">
+      <div class="step-head" onclick="toggleMileOpen('${m.id}')">
+        <div class="dot" onclick="event.stopPropagation();toggleMile('${m.id}')"></div>
+        <div class="step-main">
+          <div class="m-name">${esc(m.n)}</div>
+          <div class="m-desc">${esc(m.d)}</div>
+          ${all?`<div class="sub-bar"><i style="width:${Math.round(dn/all*100)}%"></i></div>
+                 <div class="sub-count">${dn} из ${all}</div>`:''}
+        </div>
+        ${all?`<div class="chev ${isOpen?'up':''}">▾</div>`:''}
+      </div>
+      ${isOpen&&all?`<div class="sub-list">
+        ${sub.map((s,i)=>`<div class="sub-item ${s.done?'done':''}">
+          <div class="box-x" onclick="toggleSub('${m.id}',${i})">✓</div>
+          <div class="sub-txt">${esc(s.t)}</div>
+        </div>`).join('')}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+let openMile = new Set();
+function toggleMileOpen(id){
+  openMile.has(id) ? openMile.delete(id) : openMile.add(id);
+  renderMiles();
+}
+function toggleSub(mid, i){
+  const m = S.miles.find(x=>x.id===mid); if(!m||!m.sub) return;
+  m.sub[i].done = !m.sub[i].done;
+  m.done = m.sub.every(s=>s.done);
+  save(); renderMiles(); renderProgress();
 }
 
 function renderNotes(){
