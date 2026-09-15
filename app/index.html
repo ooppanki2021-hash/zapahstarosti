@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#12100d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Мечта">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Превращение мечты в жизнь — ДУБРАВА 40+</title>
+<style>
+:root{
+  --bg:#12100d; --panel:#1b1814; --panel2:#221e19; --line:#332c24;
+  --text:#ece4d6; --dim:#9a8f7e; --ochre:#c58731; --green:#4a7c59;
+  --accent:#d9a441; --done:#3d5c45; --shadow:rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  padding:env(safe-area-inset-top) 0 calc(60px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+/* кнопка установки */
+#installBar{
+  position:fixed;left:0;right:0;bottom:0;z-index:99;
+  background:var(--ochre);color:#1a1510;padding:13px 16px;
+  padding-bottom:calc(13px + env(safe-area-inset-bottom));
+  display:none;align-items:center;justify-content:space-between;gap:12px;
+  font-weight:600;font-size:14.5px;box-shadow:0 -4px 18px var(--shadow);
+}
+#installBar button{
+  background:#1a1510;color:var(--ochre);border:none;padding:9px 16px;
+  border-radius:8px;font:600 14px inherit;cursor:pointer;flex:0 0 auto;
+}
+#installBar .no{background:transparent;color:#5a4a2e;padding:9px 6px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px}
+
+/* ---------- ШАПКА ---------- */
+header{padding:26px 0 14px;text-align:center}
+h1{font-size:19px;font-weight:600;letter-spacing:.02em}
+h1 span{color:var(--ochre)}
+.sub{color:var(--dim);font-size:13px;margin-top:4px}
+
+/* ---------- ВКЛАДКИ ---------- */
+nav{display:flex;gap:6px;margin:18px 0 22px;flex-wrap:wrap;justify-content:center}
+nav button{
+  background:var(--panel);color:var(--dim);border:1px solid var(--line);
+  padding:8px 15px;border-radius:20px;cursor:pointer;font-size:14px;
+  font-family:inherit;transition:.15s;
+}
+nav button:hover{color:var(--text);border-color:var(--ochre)}
+nav button.on{background:var(--ochre);color:#1a1510;border-color:var(--ochre);font-weight:600}
+
+/* ---------- ПАНЕЛИ ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);font-weight:600;margin-bottom:14px}
+
+/* ---------- СЕГОДНЯ ---------- */
+.today-date{color:var(--ochre);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.task{
+  display:flex;gap:13px;align-items:flex-start;padding:15px;
+  background:var(--panel2);border:1px solid var(--line);border-radius:11px;margin-bottom:9px;
+  transition:.15s;
+}
+.task.done{opacity:.45}
+.task.done .t-title{text-decoration:line-through}
+.box{
+  width:23px;height:23px;flex:0 0 23px;margin-top:1px;border:2px solid var(--dim);
+  border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:transparent;transition:.15s;user-select:none;
+}
+.box:hover{border-color:var(--ochre)}
+.task.done .box{background:var(--done);border-color:var(--done);color:#dff0e2}
+.t-title{font-weight:500;line-height:1.4}
+.t-note{color:var(--dim);font-size:13.5px;margin-top:4px}
+.t-tag{
+  display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;margin-top:7px;
+  background:#2b2419;color:var(--accent);letter-spacing:.04em;
+}
+.empty{color:var(--dim);text-align:center;padding:26px 10px;font-style:italic}
+
+/* ---------- ПРОГРЕСС ПО ВЕХАМ ---------- */
+.mile{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}
+.mile:last-child{border:none}
+.dot{
+  width:15px;height:15px;flex:0 0 15px;border-radius:50%;margin-top:4px;
+  border:2px solid var(--line);background:var(--bg);cursor:pointer;transition:.15s;
+}
+.dot:hover{border-color:var(--ochre)}
+.mile.done .dot{background:var(--ochre);border-color:var(--ochre)}
+.mile.done .m-name{color:var(--dim)}
+.m-name{font-weight:500}
+.m-desc{color:var(--dim);font-size:13px;margin-top:2px}
+.bar{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--ochre));border-radius:4px;transition:width .4s}
+.bar-label{font-size:13px;color:var(--dim);text-align:right}
+
+/* ---------- КАЛЕНДАРЬ ---------- */
+.day{border-left:2px solid var(--line);padding:0 0 16px 15px;margin-left:5px;position:relative}
+.day:before{
+  content:'';position:absolute;left:-6px;top:5px;width:9px;height:9px;
+  border-radius:50%;background:var(--line);
+}
+.day.is-today:before{background:var(--ochre);box-shadow:0 0 0 4px rgba(197,135,49,.16)}
+.day.is-today{border-left-color:var(--ochre)}
+.day.past{opacity:.45}
+.d-head{font-size:13px;color:var(--dim);margin-bottom:7px;letter-spacing:.04em}
+.day.is-today .d-head{color:var(--ochre);font-weight:600}
+.d-task{
+  display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:var(--panel2);
+  border:1px solid var(--line);border-radius:9px;margin-bottom:6px;font-size:14.5px;
+}
+.d-task.done{opacity:.5}
+.d-task.done .dt-txt{text-decoration:line-through}
+.box-s{
+  width:19px;height:19px;flex:0 0 19px;border:2px solid var(--dim);border-radius:6px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;
+  color:transparent;transition:.15s;user-select:none;margin-top:1px;
+}
+.box-s:hover{border-color:var(--ochre)}
+.d-task.done .box-s{background:var(--done);border-color:var(--done);color:#dff0e2}
+.dt-txt{flex:1;cursor:text}
+.dt-txt:focus{outline:none;border-bottom:1px dashed var(--ochre)}
+.x{
+  color:var(--line);cursor:pointer;font-size:17px;line-height:1;padding:0 3px;
+  transition:.15s;user-select:none;flex:0 0 auto;
+}
+.x:hover{color:#c4564e}
+.add-line{
+  display:flex;gap:8px;align-items:center;padding:7px 12px;margin-bottom:6px;
+  border:1px dashed var(--line);border-radius:9px;color:var(--dim);cursor:pointer;
+  font-size:14px;transition:.15s;
+}
+.add-line:hover{border-color:var(--ochre);color:var(--ochre)}
+.gear{
+  color:var(--line);cursor:pointer;font-size:15px;line-height:1;padding:0 4px;
+  transition:.15s;user-select:none;flex:0 0 auto;
+}
+.gear:hover{color:var(--ochre)}
+.gear.on{color:var(--ochre)}
+.d-wrap{margin-bottom:6px}
+.more{
+  background:var(--bg);border:1px solid var(--line);border-top:none;
+  border-radius:0 0 9px 9px;padding:12px;margin:-7px 0 0;
+}
+.more label{display:block;font-size:12px;color:var(--dim);letter-spacing:.05em;margin:0 0 5px;text-transform:uppercase}
+.more .fld{margin-bottom:12px}
+.more .fld:last-child{margin:0}
+.more textarea{min-height:56px;font-size:14px;padding:9px 11px}
+.more input[type=date],.more select{
+  background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:8px 10px;font:14px inherit;color-scheme:dark;
+}
+.more select{cursor:pointer}
+.rep-badge{
+  display:inline-block;font-size:11px;padding:1px 7px;border-radius:5px;
+  background:#23301f;color:#8fbf7a;letter-spacing:.03em;flex:0 0 auto;margin-top:2px;
+}
+.newday{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:8px}
+input[type=date],input[type=text].ti{
+  background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:9px;padding:10px 12px;font:15px inherit;
+}
+input[type=date]{color-scheme:dark}
+input[type=text].ti{flex:1;min-width:190px}
+input:focus{outline:none;border-color:var(--ochre)}
+
+/* ---------- ЗАМЕТКИ ---------- */
+textarea{
+  width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:13px;font:15px/1.5 inherit;resize:vertical;min-height:90px;
+}
+textarea:focus{outline:none;border-color:var(--ochre)}
+.note{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:9px}
+.n-date{font-size:12px;color:var(--ochre);letter-spacing:.05em;margin-bottom:5px}
+.n-body{white-space:pre-wrap;font-size:14.5px}
+.n-del{float:right;color:var(--dim);cursor:pointer;font-size:13px;padding:0 4px}
+.n-del:hover{color:#c06}
+
+/* ---------- КНОПКИ ---------- */
+.btn{
+  background:var(--ochre);color:#1a1510;border:none;padding:11px 20px;border-radius:9px;
+  cursor:pointer;font:600 14.5px inherit;transition:.15s;
+}
+.btn:hover{background:var(--accent)}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+.btn.ghost:hover{color:var(--text);border-color:var(--ochre);background:transparent}
+.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+
+/* ---------- ЦИТАТА ---------- */
+.quote{
+  text-align:center;color:var(--dim);font-size:14px;font-style:italic;
+  padding:22px 20px;line-height:1.65;
+}
+.hide{display:none}
+/* ---------- ЗАМОК ---------- */
+#lock{
+  position:fixed;inset:0;z-index:999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+#lock .box-in{width:100%;max-width:300px;text-align:center}
+#lock .rings{width:74px;height:74px;margin:0 auto 22px;opacity:.9}
+#lock h2{font-size:15px;color:var(--dim);font-weight:500;letter-spacing:.03em;margin-bottom:20px;text-transform:none}
+#pin{
+  width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:11px;padding:15px;font:600 22px/1 inherit;text-align:center;
+  letter-spacing:.5em;text-indent:.5em;
+}
+#pin:focus{outline:none;border-color:var(--ochre)}
+#pinErr{color:#c4564e;font-size:13.5px;margin-top:12px;min-height:19px}
+#lock .btn{width:100%;margin-top:14px;padding:13px}
+#lock .tip{color:var(--dim);font-size:12.5px;margin-top:18px;line-height:1.5}
+body.locked{overflow:hidden}
+.hint{font-size:13px;color:var(--dim);line-height:1.6;margin-top:10px}
+.hint b{color:var(--text);font-weight:600}
+@media(max-width:560px){
+  .wrap{padding:0 11px}
+  h1{font-size:17px}
+  .panel{padding:16px}
+}
+</style>
+</head>
+<body class="locked">
+
+<div id="lock">
+  <div class="box-in">
+    <svg class="rings" viewBox="0 0 100 100" fill="none" stroke="#c58731" stroke-width="4">
+      <circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="30" stroke="#a87028"/>
+      <circle cx="50" cy="50" r="20"/><circle cx="50" cy="50" r="10" stroke="#a87028"/>
+      <circle cx="50" cy="50" r="4" fill="#c58731" stroke="none"/>
+    </svg>
+    <h2>Превращение мечты в жизнь</h2>
+    <input type="password" id="pin" inputmode="numeric" maxlength="12"
+           placeholder="••••" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')tryPin()">
+    <div id="pinErr"></div>
+    <button class="btn" onclick="tryPin()">Войти</button>
+    <div class="tip" id="lockTip"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<header>
+  <h1>Превращение мечты <span>в жизнь</span></h1>
+  <div class="sub">ДУБРАВА 40+ · путь до первой партии</div>
+</header>
+
+<nav>
+  <button class="on" data-tab="today">Сегодня</button>
+  <button data-tab="cal">Календарь</button>
+  <button data-tab="miles">Путь</button>
+  <button data-tab="notes">Заметки</button>
+  <button data-tab="data">Данные</button>
+</nav>
+
+<!-- ============ СЕГОДНЯ ============ -->
+<section id="today">
+  <div class="panel">
+    <div class="today-date" id="todayDate"></div>
+    <h2 style="margin-top:8px">Дело дня</h2>
+    <div id="todayList"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Где я на пути</h2>
+    <div class="bar"><i id="barFill" style="width:0%"></i></div>
+    <div class="bar-label" id="barLabel"></div>
+    <div style="margin-top:14px" id="miniMiles"></div>
+  </div>
+
+  <div class="quote" id="quote"></div>
+</section>
+
+<!-- ============ КАЛЕНДАРЬ ============ -->
+<section id="cal" class="hide">
+  <div class="panel">
+    <h2>Добавить дело</h2>
+    <div class="newday">
+      <input type="date" id="newDate">
+      <input type="text" class="ti" id="newText" placeholder="Что нужно сделать" onkeydown="if(event.key==='Enter')addTask()">
+      <button class="btn" onclick="addTask()">Добавить</button>
+    </div>
+    <div class="hint">Можно поставить любую дату — хоть в следующем месяце, день появится в списке сам.</div>
+  </div>
+
+  <div class="panel">
+    <h2>План по дням</h2>
+    <div id="calList"></div>
+    <div class="hint"><b>Как править:</b> нажми на текст дела — и меняй прямо в нём. Значок <b>⋯</b> открывает заметку, перенос на другой день и повтор. Крестик удаляет.<br><br>
+    <b>Повторяющиеся дела:</b> следующее появляется автоматически, когда отметишь текущее сделанным. Так не копится хвост просрочек, если неделю не заходила.<br><br>
+    Дальше двух недель по дням не расписываем намеренно — план всё равно сдвинется, а просроченные дела давят. Дальний горизонт живёт во вкладке «Путь», там нет дат.</div>
+  </div>
+</section>
+
+<!-- ============ ПУТЬ ============ -->
+<section id="miles" class="hide">
+  <div class="panel">
+    <h2>Вехи проекта</h2>
+    <div class="hint" style="margin:0 0 16px">Без дат — намеренно. Веха либо пройдена, либо нет. Отмечай сама, когда случится.</div>
+    <div id="mileList"></div>
+  </div>
+</section>
+
+<!-- ============ ЗАМЕТКИ ============ -->
+<section id="notes" class="hide">
+  <div class="panel">
+    <h2>Новая заметка</h2>
+    <textarea id="noteInput" placeholder="Что случилось, что решила, что сказали на производстве..."></textarea>
+    <div class="row"><button class="btn" onclick="addNote()">Сохранить</button></div>
+  </div>
+  <div class="panel">
+    <h2>Записи</h2>
+    <div id="noteList"></div>
+  </div>
+</section>
+
+<!-- ============ ДАННЫЕ ============ -->
+<section id="data" class="hide">
+  <div class="panel">
+    <h2>Сохранность</h2>
+    <div class="hint" id="storageState"></div>
+    <div class="row">
+      <button class="btn" onclick="exportData()">Выгрузить состояние</button>
+      <button class="btn ghost" onclick="document.getElementById('imp').click()">Загрузить состояние</button>
+      <input type="file" id="imp" accept=".json" class="hide" onchange="importData(event)">
+    </div>
+    <div class="hint">
+      <b>Как это работает.</b> Всё хранится прямо в твоём браузере — галочки, заметки, прогресс.
+      Ничего никуда не уходит.<br><br>
+      <b>Когда нужен помощник.</b> Нажми «Выгрузить состояние» — скачается маленький файл.
+      Пришли его в чат, и я увижу, где ты, что сделано и что буксует.
+      «Загрузить состояние» — вернуть данные обратно или перенести на другое устройство.<br><br>
+      <b>Совет.</b> Выгружай раз в неделю. Это заодно резервная копия: если что-то случится
+      с компьютером, последняя версия останется в переписке.
+    </div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn ghost" onclick="changePin()">Сменить код входа</button>
+      <button class="btn ghost" onclick="resetAll()">Сбросить всё</button>
+    </div>
+    <div class="hint">
+      <b>Про код.</b> Закрывает приложение от чужих глаз, если кто-то случайно наберёт адрес папки.
+      Спрашивается один раз за сеанс — пока окно открыто, повторно не побеспокоит.<br><br>
+      Код хранится отдельно на каждом устройстве: сменила на компьютере — на телефоне остался прежний.<br><br>
+      ⚠️ Это защита от посторонних глаз, а не сейф. Данные всё равно лежат только у тебя
+      на устройстве и на сайт не попадают — там пустая заготовка.
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div id="installBar">
+  <span>Установить как приложение</span>
+  <span style="display:flex;gap:4px">
+    <button onclick="doInstall()">Установить</button>
+    <button class="no" onclick="hideInstall()">Позже</button>
+  </span>
+</div>
+
+<script>
+/* ======================= ЗАМОК ======================= */
+/* Хранится не сам код, а его отпечаток — прочитать код из файла нельзя.
+   Меняется во вкладке «Данные». */
+const PIN_DEFAULT_HASH = '25d74826'; // отпечаток кода входа
+
+function pinHash(s){
+  let h1=0x811c9dc5, h2=0x01000193;
+  for(let i=0;i<s.length;i++){
+    h1 ^= s.charCodeAt(i); h1 = Math.imul(h1, 16777619) >>> 0;
+    h2 = Math.imul(h2 ^ s.charCodeAt(i), 2246822519) >>> 0;
+  }
+  return ((h1 ^ h2) >>> 0).toString(16).padStart(8,'0');
+}
+function currentHash(){
+  try{ return localStorage.getItem('pinHash') || PIN_DEFAULT_HASH; }
+  catch(e){ return PIN_DEFAULT_HASH; }
+}
+function tryPin(){
+  const v = document.getElementById('pin').value.trim();
+  if(pinHash(v) === currentHash()){
+    try{ sessionStorage.setItem('unlocked','1'); }catch(e){}
+    unlock();
+  } else {
+    document.getElementById('pinErr').textContent = 'Не тот код';
+    document.getElementById('pin').value='';
+    document.getElementById('pin').focus();
+  }
+}
+function unlock(){
+  document.getElementById('lock').style.display='none';
+  document.body.classList.remove('locked');
+}
+function changePin(){
+  const cur = prompt('Текущий код:');
+  if(cur===null) return;
+  if(pinHash(cur.trim()) !== currentHash()){ alert('Текущий код неверен.'); return; }
+  const nw = prompt('Новый код (цифры или буквы, минимум 4 знака):');
+  if(nw===null) return;
+  const v = nw.trim();
+  if(v.length < 4){ alert('Слишком короткий — нужно хотя бы 4 знака.'); return; }
+  try{
+    localStorage.setItem('pinHash', pinHash(v));
+    alert('Код изменён.\n\nОн хранится только в этом браузере. На телефоне нужно поменять отдельно.');
+  }catch(e){ alert('Не удалось сохранить — браузер блокирует хранилище.'); }
+}
+(function initLock(){
+  let unlocked=false;
+  try{ unlocked = sessionStorage.getItem('unlocked')==='1'; }catch(e){}
+  if(unlocked){ unlock(); return; }
+  const tip = document.getElementById('lockTip');
+  tip.textContent = 'ДУБРАВА 40+';
+  setTimeout(()=>{ const p=document.getElementById('pin'); if(p) p.focus(); }, 120);
+})();
+
+/* ======================= УСТАНОВКА ======================= */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!localStorage.getItem('installDismissed'))
+    document.getElementById('installBar').style.display = 'flex';
+});
+function doInstall(){
+  if(!deferredPrompt) return hideInstall();
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(()=>{ deferredPrompt=null; hideInstall(); });
+}
+function hideInstall(){
+  document.getElementById('installBar').style.display='none';
+  try{ localStorage.setItem('installDismissed','1'); }catch(e){}
+}
+window.addEventListener('appinstalled', hideInstall);
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+/* ======================= ДАННЫЕ ПО УМОЛЧАНИЮ ======================= */
+const DEFAULT_TASKS = [
+  // --- неделя 1 ---
+  {d:'2026-09-15', t:'Зачистка сайта: убрать себестоимость, сравнение с хурмой, обрывок «ты получаешь %»', n:'6 удалений на /sredstva-ot-zapaha/ и /karta-osetii/. Текстов писать не надо.', tag:'полчаса'},
+  {d:'2026-09-16', t:'Позвонить в центр «Мой бизнес» своего региона', n:'Спросить: какие программы открыты, как встают в реестр соцпредприятий, когда ближайшее обучение.', tag:'один звонок'},
+  {d:'2026-09-17', t:'Переписать /poroshok-dlya-tekstila/ по AUDIO', n:'Эталонная страница. Перкарбонат и 60 °С, таблица дозировки по жёсткости воды, автор-разработчик.', tag:'главное дело недели'},
+  {d:'2026-09-18', t:'Обзвонить 3 контрактных производства', n:'Список из 9 вопросов готов в РАСЧЁТ_СТОИМОСТИ.md. Начать с тех, кто делает сухое смешивание.', tag:'2 часа'},
+  {d:'2026-09-19', t:'Записать ответы производств, сравнить', n:'Кто берёт давальческое сырьё, у кого минимальная партия ниже, кто оформляет СГР.', tag:''},
+  {d:'2026-09-20', t:'Выходной', n:'Серьёзно. Проект не спринт, до первой партии месяцы.', tag:'отдых'},
+  {d:'2026-09-21', t:'Выходной', n:'', tag:'отдых'},
+  // --- неделя 2 ---
+  {d:'2026-09-22', t:'Запрос в орган по сертификации про СГР', n:'Заодно уточнить противоречие: ТР ЕАЭС 048/2019 или его нет для порошков.', tag:'запускает долгий процесс'},
+  {d:'2026-09-23', t:'Переписать /sredstva-ot-zapaha/', n:'Убрать дубль страницы, добавить энзимы и цеолиты, честное «чего продукт не делает».', tag:''},
+  {d:'2026-09-24', t:'Развести /zapah-v-kvartire/ и /karta-kvartiry/', n:'Первая — хаб с логикой поиска, вторая — визуальный навигатор.', tag:''},
+  {d:'2026-09-25', t:'Переписать /odezhda-i-tekstil/', n:'Почему 40 °С не убирает жирные альдегиды, почему кондиционер запечатывает запах.', tag:''},
+  {d:'2026-09-26', t:'Открыть первые 2–3 готовые страницы', n:'Убрать noindex, обновить sitemap, переобход в Вебмастере.', tag:'первый результат'},
+  {d:'2026-09-27', t:'Выходной', n:'', tag:'отдых'},
+  {d:'2026-09-28', t:'Выходной', n:'', tag:'отдых'}
+];
+
+const DEFAULT_MILES = [
+  {n:'Формулы разработаны',        d:'5 рецептур с граммовками, INCI, технологией', done:true},
+  {n:'Сайт построен',              d:'26 страниц, научная база, аналитика', done:true},
+  {n:'Упаковка отрисована',        d:'Лица, спины, корешки, логотип', done:true},
+  {n:'Смета и план готовы',        d:'Три сценария бюджета, критический путь', done:true},
+  {n:'Сайт вычищен и переписан',   d:'Тексты по AUDIO, страницы открыты для поиска', done:false},
+  {n:'Производство найдено',       d:'Обзвон, выбор площадки, договорённость по давальческому сырью', done:false},
+  {n:'СГР подано',                 d:'Самый долгий документ — 1–1,5 месяца', done:false},
+  {n:'СГР получено',               d:'Без него нельзя печатать тираж упаковки', done:false},
+  {n:'Образцы сварены',            d:'Первая проба на реальном оборудовании', done:false},
+  {n:'Упаковка напечатана',        d:'Только после получения номера документа', done:false},
+  {n:'Первая партия выпущена',     d:'Продукт существует физически', done:false},
+  {n:'Карточка на маркетплейсе',   d:'Первая продажа незнакомому человеку', done:false}
+];
+
+const QUOTES = [
+  'Полтора месяца назад это была идея. Сейчас это пять формул, сайт и упаковка.',
+  'Определённости в результате не бывает ни у кого. Определённость в следующем шаге — бывает всегда.',
+  'Проект не в том состоянии, где нужен спринт. Ничего из сегодняшнего не горит.',
+  'Большинство людей с такой же идеей через полтора месяца имеют заметку в телефоне.',
+  'Одно сделанное дело сдвигает проект сильнее, чем пять обдуманных.',
+  'Экспертиза, которой у тебя не было, остаётся при любом исходе.',
+  'Сначала нормальные тексты, потом всё остальное. Ты пришла к этому сама.'
+];
+
+/* ======================= ХРАНИЛИЩЕ ======================= */
+const KEY = 'dubrava_dream_v1';
+let S = null;
+let canStore = true;
+
+function blank(){
+  return {
+    tasks: DEFAULT_TASKS.map((t,i)=>({...t, id:'t'+i, done:false})),
+    miles: DEFAULT_MILES.map((m,i)=>({...m, id:'m'+i})),
+    notes: []
+  };
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    S = raw ? JSON.parse(raw) : blank();
+    localStorage.setItem('__probe','1'); localStorage.removeItem('__probe');
+  }catch(e){ canStore=false; S = blank(); }
+}
+function save(){
+  if(!canStore) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ canStore=false; renderStorage(); }
+}
+
+/* ======================= УТИЛИТЫ ======================= */
+const DN=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+const MN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function todayISO(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function human(iso){
+  const [y,m,dd]=iso.split('-').map(Number);
+  const d=new Date(y,m-1,dd);
+  return dd+' '+MN[m-1]+', '+DN[d.getDay()];
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ======================= РЕНДЕР ======================= */
+function renderToday(){
+  const iso = todayISO();
+  document.getElementById('todayDate').textContent = human(iso);
+  const list = S.tasks.filter(t=>t.d===iso);
+  const box = document.getElementById('todayList');
+
+  if(!list.length){
+    const future = S.tasks.filter(t=>t.d>iso && !t.done).sort((a,b)=>a.d<b.d?-1:1);
+    box.innerHTML = future.length
+      ? '<div class="empty">На сегодня дел не запланировано.<br>Ближайшее — '+human(future[0].d)+'.</div>'
+      : '<div class="empty">На сегодня дел не запланировано.</div>';
+    return;
+  }
+  box.innerHTML = list.map(t=>`
+    <div class="task ${t.done?'done':''}">
+      <div class="box" onclick="toggleTask('${t.id}')">✓</div>
+      <div>
+        <div class="t-title">${esc(t.t)}</div>
+        ${t.n?`<div class="t-note">${esc(t.n)}</div>`:''}
+        ${t.tag?`<span class="t-tag">${esc(t.tag)}</span>`:''}
+        ${t.rep?`<span class="t-tag" style="background:#23301f;color:#8fbf7a">${repName(t.rep)}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function renderProgress(){
+  const done = S.miles.filter(m=>m.done).length;
+  const pct = Math.round(done/S.miles.length*100);
+  document.getElementById('barFill').style.width = pct+'%';
+  document.getElementById('barLabel').textContent = `пройдено ${done} из ${S.miles.length} этапов`;
+
+  const next = S.miles.filter(m=>!m.done).slice(0,3);
+  document.getElementById('miniMiles').innerHTML = next.length
+    ? '<div class="hint" style="margin:0 0 8px"><b>Впереди:</b></div>' +
+      next.map(m=>`<div class="mile"><div class="dot"></div><div><div class="m-name">${esc(m.n)}</div><div class="m-desc">${esc(m.d)}</div></div></div>`).join('')
+    : '<div class="hint"><b>Все вехи пройдены.</b></div>';
+}
+
+function renderCal(){
+  const iso = todayISO();
+  const days = [...new Set(S.tasks.map(t=>t.d))].sort();
+  if(!days.includes(iso)) days.push(iso);
+  days.sort();
+  document.getElementById('calList').innerHTML = days.map(d=>{
+    const cls = d===iso ? 'is-today' : (d<iso ? 'past' : '');
+    const items = S.tasks.filter(t=>t.d===d);
+    return `<div class="day ${cls}">
+      <div class="d-head">${human(d)}${d===iso?' · сегодня':''}</div>
+      ${items.map(t=>`<div class="d-wrap">
+        <div class="d-task ${t.done?'done':''}">
+          <div class="box-s" onclick="toggleTask('${t.id}')">✓</div>
+          <div class="dt-txt" contenteditable="true" spellcheck="false"
+               onblur="editTask('${t.id}',this.textContent)"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">${esc(t.t)}</div>
+          ${t.rep?`<span class="rep-badge">${repName(t.rep)}</span>`:''}
+          <div class="gear ${open.has(t.id)?'on':''}" onclick="toggleOpen('${t.id}')" title="заметка, перенос, повтор">⋯</div>
+          <div class="x" onclick="delTask('${t.id}')" title="удалить">×</div>
+        </div>
+        ${open.has(t.id)?`<div class="more">
+          <div class="fld">
+            <label>Заметка</label>
+            <textarea placeholder="Детали, телефоны, что именно спросить..."
+              onblur="editNote('${t.id}',this.value)">${esc(t.n||'')}</textarea>
+          </div>
+          <div class="fld">
+            <label>Перенести на другой день</label>
+            <input type="date" value="${t.d}" onchange="moveTask('${t.id}',this.value)">
+          </div>
+          <div class="fld">
+            <label>Повторять</label>
+            <select onchange="setRep('${t.id}',this.value)">
+              <option value=""${!t.rep?' selected':''}>не повторять</option>
+              <option value="d"${t.rep==='d'?' selected':''}>каждый день</option>
+              <option value="w"${t.rep==='w'?' selected':''}>каждую неделю</option>
+              <option value="2w"${t.rep==='2w'?' selected':''}>раз в две недели</option>
+              <option value="m"${t.rep==='m'?' selected':''}>раз в месяц</option>
+            </select>
+          </div>
+        </div>`:''}
+      </div>`).join('')}
+      <div class="add-line" onclick="quickAdd('${d}')">+ добавить дело</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMiles(){
+  document.getElementById('mileList').innerHTML = S.miles.map(m=>`
+    <div class="mile ${m.done?'done':''}">
+      <div class="dot" onclick="toggleMile('${m.id}')"></div>
+      <div><div class="m-name">${esc(m.n)}</div><div class="m-desc">${esc(m.d)}</div></div>
+    </div>`).join('');
+}
+
+function renderNotes(){
+  const box=document.getElementById('noteList');
+  box.innerHTML = S.notes.length
+    ? S.notes.map(n=>`<div class="note">
+        <span class="n-del" onclick="delNote('${n.id}')">удалить</span>
+        <div class="n-date">${esc(n.date)}</div>
+        <div class="n-body">${esc(n.text)}</div>
+      </div>`).join('')
+    : '<div class="empty">Пока пусто.</div>';
+}
+
+function renderStorage(){
+  document.getElementById('storageState').innerHTML = canStore
+    ? '✅ <b>Сохранение работает.</b> Данные остаются в этом браузере между визитами.'
+    : '⚠️ <b>Сохранение недоступно.</b> Похоже, файл открыт в окне предпросмотра. Скачай его на компьютер и открой оттуда — тогда всё будет запоминаться.';
+}
+
+function renderQuote(){
+  const n = parseInt(todayISO().replace(/-/g,''),10);
+  document.getElementById('quote').textContent = QUOTES[n % QUOTES.length];
+}
+
+function renderAll(){ renderToday(); renderProgress(); renderCal(); renderMiles(); renderNotes(); renderStorage(); renderQuote(); }
+
+/* ======================= ДЕЙСТВИЯ ======================= */
+function toggleTask(id){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  t.done=!t.done;
+  // повторяющееся дело: при выполнении создаём следующее
+  if(t.done && t.rep){
+    const nd = shiftDate(t.d, t.rep);
+    const exists = S.tasks.some(x=>x.d===nd && x.t===t.t && x.rep===t.rep);
+    if(!exists){
+      S.tasks.push({id:'t'+Date.now()+Math.floor(Math.random()*99), d:nd, t:t.t, n:t.n||'', tag:t.tag||'', rep:t.rep, done:false});
+    }
+  }
+  save(); renderToday(); renderCal();
+}
+function shiftDate(iso, rep){
+  const [y,m,d]=iso.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  if(rep==='d') dt.setDate(dt.getDate()+1);
+  else if(rep==='w') dt.setDate(dt.getDate()+7);
+  else if(rep==='2w') dt.setDate(dt.getDate()+14);
+  else if(rep==='m'){
+    // 31 января + месяц = 28 февраля, а не 3 марта
+    const last = new Date(y, m, 0).getDate() === d;
+    dt.setDate(1); dt.setMonth(dt.getMonth()+1);
+    const maxd = new Date(dt.getFullYear(), dt.getMonth()+1, 0).getDate();
+    dt.setDate(last ? maxd : Math.min(d, maxd));
+  }
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
+function repName(r){
+  return {d:'каждый день', w:'еженедельно', '2w':'раз в 2 недели', m:'ежемесячно'}[r]||'';
+}
+let open = new Set();
+function toggleOpen(id){
+  open.has(id) ? open.delete(id) : open.add(id);
+  renderCal();
+}
+function editNote(id,val){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  t.n=val.trim(); save(); renderToday();
+}
+function moveTask(id,nd){
+  const t=S.tasks.find(x=>x.id===id); if(!t||!nd)return;
+  t.d=nd; open.delete(id); save(); renderCal(); renderToday();
+}
+function setRep(id,val){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  t.rep = val||undefined; save(); renderCal();
+}
+function toggleMile(id){
+  const m=S.miles.find(x=>x.id===id); if(!m)return;
+  m.done=!m.done; save(); renderMiles(); renderProgress();
+}
+function addTask(){
+  const dEl=document.getElementById('newDate'), tEl=document.getElementById('newText');
+  const d=dEl.value, t=tEl.value.trim();
+  if(!d){ alert('Выбери дату.'); return; }
+  if(!t){ alert('Напиши, что нужно сделать.'); return; }
+  S.tasks.push({id:'t'+Date.now(), d:d, t:t, n:'', tag:'', done:false});
+  tEl.value=''; save(); renderCal(); renderToday();
+}
+function quickAdd(d){
+  const t=prompt('Что нужно сделать '+human(d)+'?');
+  if(!t||!t.trim())return;
+  S.tasks.push({id:'t'+Date.now(), d:d, t:t.trim(), n:'', tag:'', done:false});
+  save(); renderCal(); renderToday();
+}
+function editTask(id,val){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  const v=val.trim();
+  if(!v){ renderCal(); return; }
+  if(v===t.t) return;
+  t.t=v; save(); renderToday();
+}
+function delTask(id){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  if(!confirm('Удалить «'+t.t+'»?')) return;
+  S.tasks=S.tasks.filter(x=>x.id!==id); save(); renderCal(); renderToday();
+}
+function addNote(){
+  const el=document.getElementById('noteInput');
+  const v=el.value.trim(); if(!v)return;
+  S.notes.unshift({id:'n'+Date.now(), date:human(todayISO()), text:v});
+  el.value=''; save(); renderNotes();
+}
+function delNote(id){
+  S.notes=S.notes.filter(n=>n.id!==id); save(); renderNotes();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='мечта-состояние-'+todayISO()+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importData(ev){
+  const f=ev.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d.tasks||!d.miles) throw 0;
+      S=d; save(); renderAll();
+      alert('Состояние загружено.');
+    }catch(e){ alert('Не получилось прочитать файл. Нужен тот, что скачался кнопкой «Выгрузить состояние».'); }
+  };
+  r.readAsText(f); ev.target.value='';
+}
+function resetAll(){
+  if(!confirm('Сбросить все галочки и заметки? Это нельзя отменить.\n\nСначала лучше выгрузить состояние.')) return;
+  S=blank(); save(); renderAll();
+}
+
+/* ======================= ВКЛАДКИ ======================= */
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    ['today','cal','miles','notes','data'].forEach(id=>
+      document.getElementById(id).classList.toggle('hide', id!==b.dataset.tab));
+  };
+});
+
+/* ======================= СТАРТ ======================= */
+load(); renderAll();
+document.getElementById('newDate').value = todayISO();
+</script>
+</body>
+</html>

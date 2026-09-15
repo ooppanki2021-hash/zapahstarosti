@@ -1,0 +1,17 @@
+{
+  "name": "Превращение мечты в жизнь",
+  "short_name": "Мечта",
+  "description": "ДУБРАВА 40+ — путь до первой партии",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#12100d",
+  "theme_color": "#12100d",
+  "lang": "ru",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
