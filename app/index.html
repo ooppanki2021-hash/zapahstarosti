@@ -633,9 +633,47 @@ function load(){
   try{
     const raw = localStorage.getItem(KEY);
     S = raw ? JSON.parse(raw) : blank();
+    migrate();
     localStorage.setItem('__probe','1'); localStorage.removeItem('__probe');
   }catch(e){ canStore=false; S = blank(); }
 }
+
+/* Перенос старых сохранений на новую структуру шагов.
+   Галочки и заметки не теряются: подтягиваем done по совпадению текста. */
+function migrate(){
+  if(!S) { S = blank(); return; }
+  if(!S.tasks) S.tasks = blank().tasks;
+  if(!S.notes) S.notes = [];
+
+  const oldMiles = Array.isArray(S.miles) ? S.miles : [];
+  const needs = !oldMiles.length || oldMiles.some(m => !Array.isArray(m.sub));
+  if(!needs) return;
+
+  // старое состояние: имя шага -> выполнен ли
+  const wasDone = {};
+  oldMiles.forEach(m => { if(m && m.n) wasDone[m.n.trim()] = !!m.done; });
+
+  S.miles = DEFAULT_MILES.map((m,i) => {
+    const fresh = {
+      ...m,
+      id: 'm'+i,
+      sub: (m.sub||[]).map(s => ({...s}))
+    };
+    // ищем старый шаг с похожим названием (без префикса «ШАГ N. »)
+    const clean = fresh.n.replace(/^ШАГ\s*\d+\.\s*/,'').trim();
+    for(const key in wasDone){
+      const k = key.replace(/^ШАГ\s*\d+\.\s*/,'').trim();
+      if(k === clean && wasDone[key]){
+        fresh.done = true;
+        fresh.sub.forEach(s => s.done = true);
+        break;
+      }
+    }
+    return fresh;
+  });
+  save();
+}
+
 function save(){
   if(!canStore) return;
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ canStore=false; renderStorage(); }
