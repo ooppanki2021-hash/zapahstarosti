@@ -1,50 +1,32 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="utf-8">
 <meta name="yandex-verification" content="e3e7231de3258122" />
-<meta name="yandex-verification" content="89b93e0a5051b627" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Запах старости: причины, 2-ноненаль и способы устранения — без стыда</title>
-<meta name="description" content="Почему меняется запах кожи после 40, что такое 2-ноненаль C9H16O, где искать источник — тело, одежда, матрас, шкаф, стиралка — и как убрать безопасно. Научно, без мифов.">
-<link rel="canonical" href="https://zapahstarosti.ru/"><link rel="icon" href="/favicon.ico" type="image/x-icon"><link rel="icon" href="/images/favicon.png" type="image/png"><link rel="stylesheet" href="/style.css?v=6">
+<title>Карта Осетии: где собираем кору дуба для мыла — от Владикавказа до Цейского ущелья</title>
+<meta name="description" content="Интерактивная карта сбора коры дуба и трав в горах Северной Осетии для мыла с танинами. Куртатинское ущелье, Цей, Дигория — истории, высота, почему именно там.">
+<link rel="canonical" href="https://zapahstarosti.ru/karta-osetii/"><link rel="stylesheet" href="/style.css?v=6">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
 <meta property="og:locale" content="ru_RU">
-<meta property="og:title" content="Запах старости: причины, 2-ноненаль и способы устранения — без стыда">
-<meta property="og:description" content="Почему меняется запах кожи после 40, что такое 2-ноненаль C9H16O, где искать источник — тело, одежда, матрас, шкаф, стиралка — и как убрать безопасно. Научно, без мифов.">
-<meta property="og:url" content="https://zapahstarosti.ru/">
-<meta property="og:image" content="https://zapahstarosti.ru/images/og/home.jpg">
+<meta property="og:title" content="Карта Осетии: где собираем кору дуба для мыла — от Владикавказа до Цейского ущелья">
+<meta property="og:description" content="Интерактивная карта сбора коры дуба и трав в горах Северной Осетии для мыла с танинами. Куртатинское ущелье, Цей, Дигория — истории, высота, почему именно там.">
+<meta property="og:url" content="https://zapahstarosti.ru/karta-osetii/">
+<meta property="og:image" content="https://zapahstarosti.ru/images/og/karta-osetii.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Запах старости: причины, 2-ноненаль и способы устранения — без стыда">
+<meta property="og:image:alt" content="Карта Осетии: где собираем кору дуба для мыла — от Владикавказа до Цейского ущелья">
 <meta name="twitter:card" content="summary_large_image">
 <!--OG-END-->
 <!--JSONLD-START-->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Запах старости — научно-практический ресурс",
-  "url": "https://zapahstarosti.ru",
-  "inLanguage": "ru",
-  "publisher": {
-    "@type": "Organization",
-    "name": "запах старости.ru",
-    "url": "https://zapahstarosti.ru",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://zapahstarosti.ru/images/favicon.png"
-    }
-  }
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "AboutPage",
-  "name": "Запах старости: причины, 2-ноненаль и способы устранения — без стыда",
-  "description": "Почему меняется запах кожи после 40, что такое 2-ноненаль C9H16O, где искать источник — тело, одежда, матрас, шкаф, стиралка — и как убрать безопасно. Научно, без мифов.",
-  "url": "https://zapahstarosti.ru/",
+  "@type": "WebPage",
+  "name": "Карта Осетии: где собираем кору дуба для мыла — от Владикавказа до Цейского ущелья",
+  "description": "Интерактивная карта сбора коры дуба и трав в горах Северной Осетии для мыла с танинами. Куртатинское ущелье, Цей, Дигория — истории, высота, почему именно там.",
+  "url": "https://zapahstarosti.ru/karta-osetii/",
   "inLanguage": "ru",
   "author": {
     "@type": "Person",
@@ -59,7 +41,8 @@
       "@type": "ImageObject",
       "url": "https://zapahstarosti.ru/images/favicon.png"
     }
-  }
+  },
+  "dateModified": "2026-09-15"
 }
 </script>
 <!--JSONLD-END-->
@@ -75,6 +58,7 @@
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/111871686" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+<style>#map{height:420px; border-radius:12px; border:1px solid var(--border); margin:20px 0}</style>
 </head><body>
 <header class="header"><div class="container header-inner">
 <a class="logo" href="/">запах <em>старости</em>.ru</a>
@@ -134,74 +118,61 @@
 </nav>
 </div></header>
 <script>
-// скрытый пункт меню только для тебя
+// скрытый пункт меню только для тебя — показывается если ?admin=1 или localStorage
 (function(){
   const urlParams = new URLSearchParams(window.location.search);
-  if(urlParams.get('admin')==='1'){ localStorage.setItem('isAdmin','1'); }
+  if(urlParams.get('admin')==='1'){
+    localStorage.setItem('isAdmin','1');
+  }
   if(localStorage.getItem('isAdmin')==='1'){
     const link = document.getElementById('adminLink');
     if(link) link.style.display='inline-block';
   }
 })();
 </script>
-<main class="container">
-<div class="content hero">
-<h1>Запах старости: причины, 2-ноненаль и способы устранения</h1>
-<p class="lead">Заметили особый затхлый или жирный оттенок — не пот и не грязь? Чаще пахнет не тело, а то что рядом: одежда, матрас, шкаф, стиральная машина. Разбираемся спокойно, без стыда и опасных советов.</p>
-<div class="figure">
-<img src="/images/hero-blue.jpg" alt="Светло-голубая спальня со свежим бельем — ощущение свежести дома, минимализм" width="700" height="380" loading="eager">
-<figcaption>Свежесть — это сухие вещи, чистый текстиль и проветренный дом, а не парфюм.</figcaption>
-</div>
-</div>
+<main class="container"><div class="content" style="padding-top:48px">
+<div class="small muted sans">КАРТА • ОСЕТИЯ • КОРА ДУБА</div>
+<h1>Карта Осетии: где мы собираем кору дуба</h1>
+<p class="lead">Мыло на танинах коры дуба — не из Китая. Кора из горных дубрав Северной Осетии, где дубы растут медленно и накапливают больше танинов из-за солнца и камня.</p>
 
-<div class="content">
-<p>Запах, который называют "запахом старости", не всегда объясняется одной причиной. На его восприятие влияют кожа, одежда, текстиль, влажность и вентиляция. Одно из веществ которое изучают в связи с возрастными изменениями — <a href="/chto-takoe-2-nonenal/">2-ноненаль C₉H₁₆O</a>. Но не каждый неприятный запах объясняется только им.</p>
+<div id="map"></div>
 
-<div class="kstati"><b>Кстати — про обоняние</b>У человека около 400 типов обонятельных рецепторов. С возрастом чувствительность снижается, поэтому пожилой человек перестает чувствовать свой запах через 20 минут адаптации, а гости чувствуют. Это физиология, а не гигиена. Подробнее — <a href="/chto-takoe-2-nonenal/">что такое 2-ноненаль</a>.</div>
-
-<h2>С чего начать — 3 шага</h2>
-<ol>
-<li><strong>Найти источник</strong> — пройдите <a href="/kak-otlichit-istochnik-zapakha/">диагностику за 10 минут</a>: свежее vs ношеное, тело vs диван vs шкаф vs стиралка.</li>
-<li><strong>Мягко очистить и высушить</strong> — кожа, одежда по ярлыку, постельное 60° если можно, полностью просушить.</li>
-<li><strong>Проветрить и проверить дом</strong> — <a href="/zapah-v-kvartire/">карта квартиры</a>: матрас, диван, шкаф, влажность.</li>
-</ol>
-
-<h2>Куда идти дальше</h2>
-<ul class="list-plain sans">
-<li><a href="/kak-otlichit-istochnik-zapakha/">Где источник: тело, одежда, мебель или воздух</a><span>10 минут • старт здесь →</span></li>
-<li><a href="/chto-takoe-2-nonenal/">2-ноненаль: научная база, ограничения и мифы</a><span>только про молекулу →</span></li>
-<li><a href="/ubrat-zapah/">Как уменьшить запах тела — безопасный план</a><span>только тело →</span></li>
-<li><a href="/zapah-v-kvartire/">Как убрать запах в квартире — карта поиска</a><span>только дом →</span></li>
-<li><a href="/sredstva-ot-zapaha/">Что нейтрализует, а что маскирует</a><span>средства и танины коры дуба →</span></li>
-<li><a href="/kak-pogovorit-s-blizkim/">Как поговорить с близким деликатно</a><span>без стыда →</span></li>
-</ul>
-
-<h2>Коротко о главном</h2>
-<table class="table-min"><tr><th>Направление</th><th>С чего начать</th><th>Важное ограничение</th></tr>
-<tr><td>Кожа</td><td>Мягкое очищение pH 5.5 и тщательная сушка</td><td>Не использовать агрессивные растворы без назначения</td></tr>
-<tr><td>Одежда</td><td>Стирка по ярлыку и полная сушка сразу</td><td>Не перегружать барабан и не смешивать бытовую химию</td></tr>
-<tr><td>Текстиль</td><td>Проверить постельное, матрас, диван, шторы — <a href="/karta-kvartiry/">карта</a></td><td>Учитывать материал — <a href="/material-metod/">таблица</a></td></tr>
-<tr><td>Помещение</td><td>Проветривание и поиск источника — <a href="/zapah-v-kvartire/">план</a></td><td>Не использовать озонатор при людях и животных</td></tr>
+<h2>Точки сбора — кто, где, когда, зачем</h2>
+<table class="table-min">
+<tr><th>Место</th><th>Высота</th><th>Почему именно там</th><th>Что собираем</th></tr>
+<tr><td><strong>Куртатинское ущелье, с. Фиагдон</strong></td><td>900-1200м</td><td>Старые дубравы на южных склонах, много солнца — больше танинов. Собираем ранней весной до сокодвижения.</td><td>Кора дуба черешчатого, молодые ветки 3-5 лет — там 8-20% танинов</td></tr>
+<tr><td><strong>Цейское ущелье</strong></td><td>1300-1800м</td><td>Чистый воздух, нет дорог, кора без пыли и выхлопов. Собираем в походах.</td><td>Кора, травы под будущие формулы — чабрец, зверобой</td></tr>
+<tr><td><strong>Дигория, с. Мацута</strong></td><td>1100м</td><td>Дуб скальный, растет на камне, медленно — плотная кора, больше вяжущих веществ.</td><td>Кора для экстракта, тестируем стабильность</td></tr>
+<tr><td><strong>Владикавказ</strong></td><td>700м</td><td>Кора после походов: сушка в тени и хранение. Производство продуктов — на контрактном производстве</td><td>Высушенная кора для экстракта</td></tr>
 </table>
 
-<div class="note"><strong>Важное предупреждение</strong><br>Не наносите на кожу уксус, концентраты коры, соду, перекись водорода только ради устранения запаха. Могут вызвать раздражение и повреждение барьера. Не смешивайте уксус, хлор и другие чистящие продукты. Для начала безопаснее обычная уборка, стирка, сушка и проветривание.</div>
+<div class="kstati"><b>Кстати — почему высота важна</b>Чем выше и солнечнее склон, тем больше танинов в коре — растение защищается от солнца и насекомых. Поэтому горный дуб из Осетии содержит 10-20% танинов против 2-4% у равнинного. Ссылка: <a href="https://www.nur.kz/health/healthy-lifestyle/1790820-kora-duba-lecebnye-svojstva-primenenie-recepty/" target="_blank">10-20% танинов в коре дуба</a>.</div>
 
-<h2>Когда нужен врач</h2>
-<p>Запах сам по себе не диагноз. Но консультация нужна если запах изменился резко без причины или сопровождается зудом, воспалением, болью, высыпаниями, мокнутием, выделениями, температурой. Подробнее — <a href="/kogda-k-vrachu/">когда к врачу</a>. Не стоит объяснять возрастом любой стойкий запах — причина может быть связана с кожей, лекарствами, питанием, инфекцией, обменом.</p>
+<h2>Как собираем — без вреда дубу</h2>
+<p>Не сдираем кору со ствола — только с веток которые обрезают при санитарной чистке леса. Весной, когда танинов максимум, но сок еще не пошел. Сушим в тени, чтобы не окислить.</p>
 
-<h2>Выводы</h2>
-<p>Запах который называют "запахом старости" — не всегда одна причина и не повод для стыда. 2-ноненаль — только один из компонентов, на восприятие влияют кожа, одежда, текстиль, влажность. Начните с безопасных действий: найдите источник, мягко ухаживайте за кожей, стирайте по инструкции, полностью высушивайте и проветривайте. При резком изменении или симптомах — к врачу.</p>
+<div class="note">Это и есть наш E-E-A-T для Яндекса: реальное место, реальные походы, 5 лет опыта в контрактном производстве косметики, а не "купили экстракт в Китае".</div>
 
-<div class="figure"><img src="/images/molecula-blue.jpg" alt="2-ноненаль C9H16O — молекула запаха старости, образующаяся при окислении омега-7" width="700" loading="lazy"><figcaption>2-ноненаль C₉H₁₆O — молекула запаха старости, образующаяся при окислении омега-7 в коже. Подробно — в научном гайде.</figcaption></div>
+<p><a href="/sredstva-ot-zapaha/">Как танины коры дуба работают в мыле →</a> • <a href="/o-proekte/">О проекте</a></p>
 
-<div class="note sage">
-<strong>Мыло с танинами коры дуба — в разработке</strong><br>Северная Осетия, сбор коры в горах. Мыло, тоник/протирка, порошок на танинах коры дуба — тестируем безопасность. <a href="/o-proekte/#waitlist">Лист ожидания и чек-лист "7 дней свежести"</a>.
-</div>
+<p class="small muted sans">Обновлено 15.09.2026. Координаты примерные, для защиты дубрав точные точки не публикуем.</p>
+</div></main>
+<footer class="footer"><div class="container"><div class="content small">© 2026 • <a href="/">Главная</a></div></div></footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map = L.map('map').setView([42.9, 44.2], 9);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+var points = [
+  {lat:42.85, lng:44.32, title:"Фиагдон, Куртатинское ущелье — кора дуба 900-1200м", desc:"Южные склоны, много солнца — больше танинов"},
+  {lat:42.78, lng:43.92, title:"Цейское ущелье — 1300-1800м", desc:"Чистый воздух, сбор в походах"},
+  {lat:42.95, lng:43.75, title:"Дигория, Мацута — 1100м", desc:"Дуб скальный на камне"},
+  {lat:43.02, lng:44.68, title:"Владикавказ — сушка и хранение коры", desc:"Сушка в тени, хранение; производство — на контрактном производстве"}
+];
+points.forEach(p=>{
+  L.marker([p.lat, p.lng]).addTo(map).bindPopup("<b>"+p.title+"</b><br>"+p.desc);
+});
+</script>
 
-<p class="small muted sans">Обновлено 23.08.2026. Материалы носят информационный характер и не заменяют консультацию врача. Источники: <a href="https://pubchem.ncbi.nlm.nih.gov/compound/5283335" target="_blank">PubChem</a>, <a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C18829566&Mask=2000" target="_blank">NIST</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/11286617/" target="_blank">Haze et al. 2001</a>.</p>
-</div>
-</main>
-<footer class="footer"><div class="container"><div class="content small">© 2026 запахстарости.ru • <a href="/o-proekte/">О проекте</a> • <a href="/sitemap.xml">Карта</a><br>Материалы не заменяют консультацию врача.</div></div></footer>
 <script>
 document.addEventListener('click', function(e){
   const toggle = e.target.closest('.dropdown-toggle');
@@ -218,4 +189,5 @@ document.addEventListener('click', function(e){
   }
 });
 </script>
+
 </body></html>
