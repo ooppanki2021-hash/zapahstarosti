@@ -62,12 +62,132 @@ p{margin:0 0 16px}
 .footer{margin-top:88px; padding:28px 0 40px; border-top:1px solid var(--border); font-family: -apple-system, sans-serif; font-size:12.5px; color:var(--text-light)}
 .small{font-size:13px; color:var(--text-light); font-family: -apple-system, sans-serif}
 .muted{color:var(--text-light)}
-@media(max-width:800px){
+/* Кнопка открытия мобильного меню (по умолчанию скрыта на ПК) */
+.menu-toggle-btn{
+  display:none;
+  background:none;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:6px 12px;
+  font-family:-apple-system, sans-serif;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.04em;
+  color:var(--text);
+  cursor:pointer;
+  align-items:center;
+  gap:6px;
+}
+.menu-toggle-btn:hover{
+  background:var(--paper);
+  color:var(--blue-dark);
+}
+.menu-backdrop{
+  display:none;
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  background:rgba(44,51,58,0.4);
+  backdrop-filter:blur(3px);
+  z-index:98;
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.menu-backdrop.open{
+  display:block;
+  opacity:1;
+}
+
+@media(max-width:860px){
   h1{font-size:28px}
   h2{font-size:22px}
-  .nav{gap:14px; overflow:auto; white-space:nowrap}
   .container{padding:0 16px}
-  .dropdown-menu{position:static; display:none; box-shadow:none; border:0; background:var(--paper); margin-top:6px}
+  .header-inner{flex-wrap:nowrap; padding:12px 0}
+  
+  /* Показываем кнопку бургер */
+  .menu-toggle-btn{display:inline-flex}
+
+  /* Боковая панель-шторка справа */
+  .nav{
+    position:fixed;
+    top:0;
+    right:-320px;
+    width:300px;
+    height:100vh;
+    background:#ffffff;
+    box-shadow:-4px 0 24px rgba(44,51,58,0.15);
+    z-index:99;
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+    padding:24px 20px 40px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    transition:right .3s cubic-bezier(0.16, 1, 0.3, 1);
+    letter-spacing:normal;
+    text-transform:none;
+    font-size:15px;
+  }
+  .nav.open{
+    right:0;
+  }
+  
+  /* Заголовок шторки */
+  .nav::before{
+    content:"МЕНЮ САЙТА";
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-light);
+    font-weight:700;
+    padding-bottom:14px;
+    margin-bottom:10px;
+    border-bottom:1px solid var(--border);
+  }
+  
+  /* Ссылки внутри шторки */
+  .nav > a{
+    padding:12px 6px;
+    border-bottom:1px solid var(--border);
+    color:var(--text);
+    font-weight:500;
+  }
+  .nav > a:hover{
+    color:var(--blue-dark);
+  }
+  
+  /* Выпадающие аккордеоны в шторке */
+  .dropdown{
+    border-bottom:1px solid var(--border);
+  }
+  .dropdown-toggle{
+    padding:12px 6px;
+    width:100%;
+    justify-content:space-between;
+    font-weight:600;
+    color:var(--text);
+  }
+  .dropdown-menu{
+    position:static;
+    display:none;
+    box-shadow:none;
+    border:0;
+    border-radius:6px;
+    background:var(--paper);
+    margin:0 0 10px 0;
+    padding:4px 0;
+  }
+  .dropdown.open .dropdown-menu{
+    display:block;
+  }
+  .dropdown-menu a{
+    padding:9px 16px;
+    font-size:13.5px;
+    color:var(--text);
+  }
+  .dropdown-menu a:hover{
+    color:var(--blue-dark);
+    background:rgba(220,232,245,0.4);
+  }
 }
 
 /* Components used by the long-form articles */
