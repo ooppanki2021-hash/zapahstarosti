@@ -1,7 +1,6 @@
 <!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
 <meta name="yandex-verification" content="e3e7231de3258122" /><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-
 <title>Набор «Тело + текстиль» — как сочетать мыло, тоник и порошок</title>
 <meta name="description" content="Комплект для свежести: мыло с танинами коры дуба для тела + средство для текстиля. Порядок применения, кому не подходит.">
 <link rel="canonical" href="https://zapahstarosti.ru/nabor/"><link rel="stylesheet" href="/style.css?v=6"><!--OG-START-->
@@ -112,12 +111,13 @@
 <a class="dropdown-toggle" href="/o-proekte/">О проекте</a>
 <div class="dropdown-menu">
 <a href="/o-proekte/">О проекте</a>
-<a href="/karta-osetii/">Карта Осетии — экспедиции и сырьё</a>
+<a href="/karta-osetii/">Карта Осетии — где собираем кору</a>
 <a href="/faq/">FAQ — 20 ответов</a>
 </div>
 </div>
 <a href="/constructor-v5.html" id="adminLink" style="display:none; color:#7A9AB8; border:1px dashed #DCE8F5; padding:4px 10px; border-radius:999px">Конструктор</a>
 </nav>
+<button class="menu-toggle-btn" id="menuToggle" aria-label="Открыть меню">☰ Меню</button>
 </div></header>
 <script>
 // скрытый пункт меню только для тебя — показывается если ?admin=1 или localStorage
@@ -157,19 +157,44 @@
 
 </section></main>
 <script>
-document.addEventListener('click', function(e){
-  const toggle = e.target.closest('.dropdown-toggle');
-  if(toggle){
-    e.preventDefault();
-    const dd = toggle.closest('.dropdown');
-    const isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
-    if(!isOpen) dd.classList.add('open');
-  } else {
-    if(!e.target.closest('.dropdown')){
-      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
-    }
+document.addEventListener('DOMContentLoaded', function(){
+  const toggleBtn = document.getElementById('menuToggle');
+  const nav = document.querySelector('.nav');
+  let backdrop = document.getElementById('menuBackdrop');
+  if(!backdrop){
+    backdrop = document.createElement('div');
+    backdrop.id = 'menuBackdrop';
+    backdrop.className = 'menu-backdrop';
+    document.body.appendChild(backdrop);
   }
+  function toggleNav(){
+    const isOpen = nav.classList.toggle('open');
+    backdrop.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  if(toggleBtn){
+    toggleBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleNav();
+    });
+  }
+  backdrop.addEventListener('click', function(){
+    if(nav.classList.contains('open')) toggleNav();
+  });
+  document.addEventListener('click', function(e){
+    const toggle = e.target.closest('.dropdown-toggle');
+    if(toggle){
+      e.preventDefault();
+      const dd = toggle.closest('.dropdown');
+      const isOpen = dd.classList.contains('open');
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+      if(!isOpen) dd.classList.add('open');
+    } else {
+      if(!e.target.closest('.dropdown')){
+        document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+      }
+    }
+  });
 });
 </script>
 

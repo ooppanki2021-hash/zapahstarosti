@@ -117,6 +117,7 @@
 </div>
 <a href="/constructor-v5.html" id="adminLink" style="display:none; color:#7A9AB8; border:1px dashed #DCE8F5; padding:4px 10px; border-radius:999px">Конструктор</a>
 </nav>
+<button class="menu-toggle-btn" id="menuToggle" aria-label="Открыть меню">☰ Меню</button>
 </div></header>
 <script>
 // скрытый пункт меню только для тебя — показывается если ?admin=1 или localStorage
@@ -218,19 +219,44 @@
 <p class="small muted sans">Обновлено 19.09.2026. Подготовлено на основе норм строительной аэродинамики жилых зданий и физики микроклимата.</p>
 </div></main>
 <script>
-document.addEventListener('click', function(e){
-  const toggle = e.target.closest('.dropdown-toggle');
-  if(toggle){
-    e.preventDefault();
-    const dd = toggle.closest('.dropdown');
-    const isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
-    if(!isOpen) dd.classList.add('open');
-  } else {
-    if(!e.target.closest('.dropdown')){
-      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
-    }
+document.addEventListener('DOMContentLoaded', function(){
+  const toggleBtn = document.getElementById('menuToggle');
+  const nav = document.querySelector('.nav');
+  let backdrop = document.getElementById('menuBackdrop');
+  if(!backdrop){
+    backdrop = document.createElement('div');
+    backdrop.id = 'menuBackdrop';
+    backdrop.className = 'menu-backdrop';
+    document.body.appendChild(backdrop);
   }
+  function toggleNav(){
+    const isOpen = nav.classList.toggle('open');
+    backdrop.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  if(toggleBtn){
+    toggleBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleNav();
+    });
+  }
+  backdrop.addEventListener('click', function(){
+    if(nav.classList.contains('open')) toggleNav();
+  });
+  document.addEventListener('click', function(e){
+    const toggle = e.target.closest('.dropdown-toggle');
+    if(toggle){
+      e.preventDefault();
+      const dd = toggle.closest('.dropdown');
+      const isOpen = dd.classList.contains('open');
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+      if(!isOpen) dd.classList.add('open');
+    } else {
+      if(!e.target.closest('.dropdown')){
+        document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+      }
+    }
+  });
 });
 </script>
 
