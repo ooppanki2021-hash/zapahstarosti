@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Как уменьшить запах тела после 40: физиология кожи, липидный барьер и гигиена</title>
 <meta name="description" content="Научный разбор возрастной гигиены: почему щелочное мыло усиливает запах 2-ноненаля, как восстановить мантию Маркионини (pH 5,2) и защитить эпидермис от окисления.">
-<link rel="canonical" href="https://zapahstarosti.ru/ubrat-zapah/"><link rel="stylesheet" href="/style.css?v=7">
+<link rel="canonical" href="https://zapahstarosti.ru/ubrat-zapah/"><link rel="stylesheet" href="/style.css?v=8">
 <!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
@@ -272,7 +272,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

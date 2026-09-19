@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Безводное очищение от возрастного запаха: мицеллярная вода, лосьоны, салфетки и кислый pH</title>
 <meta name="description" content="Дерматологический гид по безводной гигиене зрелой кожи: исследования барьера Маркионини, почему частый душ вызывает ксероз, сравнение мицеллярной воды, гидролатов и салфеток на танинах.">
-<link rel="canonical" href="https://zapahstarosti.ru/tonik-protirka/"><link rel="stylesheet" href="/style.css?v=7"><!--OG-START-->
+<link rel="canonical" href="https://zapahstarosti.ru/tonik-protirka/"><link rel="stylesheet" href="/style.css?v=8"><!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
 <meta property="og:locale" content="ru_RU">
@@ -232,7 +232,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

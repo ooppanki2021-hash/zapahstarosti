@@ -7,7 +7,7 @@
 <meta name="description" content="Полный научный разбор: формула C9H16O, история открытия Haze et al. 2001 Shiseido, как собирали запах марлей и GC-MS, почему не смывается водой, танины хурмы и коры дуба 10-20%, мифы и таблица фактов.">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" href="/images/favicon.png" type="image/png">
-<link rel="canonical" href="https://zapahstarosti.ru/chto-takoe-2-nonenal/"><link rel="stylesheet" href="/style.css?v=7">
+<link rel="canonical" href="https://zapahstarosti.ru/chto-takoe-2-nonenal/"><link rel="stylesheet" href="/style.css?v=8">
 <!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
@@ -196,7 +196,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

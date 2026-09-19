@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Как отличить источник запаха: тело, одежда, мебель или воздух — экспресс-диагностика</title>
 <meta name="description" content="Научный протокол локализации возрастного запаха за 10 минут: тест чистых зон, дифференциация себума, текстиля, поролона и вентиляции. Без опасных экспериментов.">
-<link rel="canonical" href="https://zapahstarosti.ru/kak-otlichit-istochnik-zapakha/"><link rel="stylesheet" href="/style.css?v=7">
+<link rel="canonical" href="https://zapahstarosti.ru/kak-otlichit-istochnik-zapakha/"><link rel="stylesheet" href="/style.css?v=8">
 <!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
@@ -303,7 +303,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Почему одежда удерживает возрастной запах: хлопок vs полиэстер, наука и правила стирки</title>
 <meta name="description" content="Почему вещи пахнут после стирки: исследование Textile Research Journal (хлопок vs полиэстер), разрушительное действие утюга, вред кондиционеров и пошаговый протокол удаления запаха.">
-<link rel="canonical" href="https://zapahstarosti.ru/odezhda-i-tekstil/"><link rel="stylesheet" href="/style.css?v=7"><!--OG-START-->
+<link rel="canonical" href="https://zapahstarosti.ru/odezhda-i-tekstil/"><link rel="stylesheet" href="/style.css?v=8"><!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
 <meta property="og:locale" content="ru_RU">
@@ -239,7 +239,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

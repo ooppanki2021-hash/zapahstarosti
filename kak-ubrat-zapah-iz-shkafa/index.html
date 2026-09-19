@@ -4,7 +4,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Как убрать возрастной и затхлый запах из шкафа: физика закрытого объёма, сырость ДВП и протокол очистки</title>
 <meta name="description" content="Почему вещи в шкафу приобретают затхлый запах: точка росы на задней стенке ДВП, закон заражения полок ношеной вещью, вред мыла и нафталина, пошаговый протокол очистки.">
-<link rel="canonical" href="https://zapahstarosti.ru/kak-ubrat-zapah-iz-shkafa/"><link rel="stylesheet" href="/style.css?v=7">
+<link rel="canonical" href="https://zapahstarosti.ru/kak-ubrat-zapah-iz-shkafa/"><link rel="stylesheet" href="/style.css?v=8">
 <!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
@@ -289,7 +289,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

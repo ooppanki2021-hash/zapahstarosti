@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Порошок от возрастного запаха: химия стирки, парадокс 40 °C и разбор формул для белого и цветного</title>
 <meta name="description" content="Почему обычный порошок не выстирывает возрастной запах: перкарбонат натрия и активатор TAED для белого белья, опасность кислорода для цветного, парадокс 40 °C и ферменты липаза.">
-<link rel="canonical" href="https://zapahstarosti.ru/poroshok-dlya-tekstila/"><link rel="stylesheet" href="/style.css?v=7"><!--OG-START-->
+<link rel="canonical" href="https://zapahstarosti.ru/poroshok-dlya-tekstila/"><link rel="stylesheet" href="/style.css?v=8"><!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
 <meta property="og:locale" content="ru_RU">
@@ -242,7 +242,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

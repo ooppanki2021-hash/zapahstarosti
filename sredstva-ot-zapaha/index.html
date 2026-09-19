@@ -5,7 +5,7 @@
 
 <title>Средства от возрастного запаха: гид покупателя по составам (INCI), химия нейтрализации и чек-лист этикеток</title>
 <meta name="description" content="Независимый гид потребителя по составам от возрастного запаха: 4 механизма нейтрализации, как читать этикетку INCI, чек-листы для геля, мыла и стирки, чего избегать в составе.">
-<link rel="canonical" href="https://zapahstarosti.ru/sredstva-ot-zapaha/"><link rel="stylesheet" href="/style.css?v=7"><!--OG-START-->
+<link rel="canonical" href="https://zapahstarosti.ru/sredstva-ot-zapaha/"><link rel="stylesheet" href="/style.css?v=8"><!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
 <meta property="og:locale" content="ru_RU">
@@ -243,7 +243,11 @@
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

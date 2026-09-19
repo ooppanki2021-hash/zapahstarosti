@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Карта Осетии: экспедиционный опыт и выбор сырья с танинами</title>
 <meta name="description" content="Экспедиционный опыт в горах Северной Осетии: изучение свойств дубовой коры, влияние высоты на танины и переход к закупке стандартизированного российского сырья.">
-<link rel="canonical" href="https://zapahstarosti.ru/karta-osetii/"><link rel="stylesheet" href="/style.css?v=7">
+<link rel="canonical" href="https://zapahstarosti.ru/karta-osetii/"><link rel="stylesheet" href="/style.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!--OG-START-->
 <meta property="og:type" content="website">
@@ -193,7 +193,11 @@ points.forEach(p=>{
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';

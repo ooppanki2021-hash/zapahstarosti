@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Интерактивная диагностика: где прячется источник запаха? — тест на 9 вопросов и 7 научных экспериментов</title>
 <meta name="description" content="Интерактивный тест из 9 клинико-бытовых вопросов для точной локализации источника запаха в квартире. 7 домашних физических экспериментов: паровая фаза в зиплоке, термическая ложка, тест пламени.">
-<link rel="canonical" href="https://zapahstarosti.ru/kviz/"><link rel="stylesheet" href="/style.css?v=7">
+<link rel="canonical" href="https://zapahstarosti.ru/kviz/"><link rel="stylesheet" href="/style.css?v=8">
 <!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
@@ -394,7 +394,11 @@ renderStep();
     document.body.appendChild(backdrop);
   }
   
-  // Добавляем шапку с крестиком в nav если еще нет
+  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
+  if(nav && nav.parentElement !== document.body){
+    document.body.appendChild(nav);
+  }
+  
   if(nav && !nav.querySelector('.nav-header-mobile')){
     var h = document.createElement('div');
     h.className = 'nav-header-mobile';
