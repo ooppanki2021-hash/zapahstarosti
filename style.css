@@ -62,86 +62,120 @@ p{margin:0 0 16px}
 .footer{margin-top:88px; padding:28px 0 40px; border-top:1px solid var(--border); font-family: -apple-system, sans-serif; font-size:12.5px; color:var(--text-light)}
 .small{font-size:13px; color:var(--text-light); font-family: -apple-system, sans-serif}
 .muted{color:var(--text-light)}
-/* Кнопка открытия мобильного меню (по умолчанию скрыта на ПК) */
+/* Изящная кнопка мобильного меню */
 .menu-toggle-btn{
   display:none;
-  background:none;
+  background:transparent;
   border:1px solid var(--border);
-  border-radius:8px;
-  padding:6px 12px;
-  font-family:-apple-system, sans-serif;
-  font-size:13px;
-  font-weight:600;
+  border-radius:20px;
+  padding:6px 14px;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size:12.5px;
+  font-weight:500;
   letter-spacing:0.04em;
+  text-transform:uppercase;
   color:var(--text);
   cursor:pointer;
   align-items:center;
-  gap:6px;
+  gap:8px;
+  outline:none;
+  transition:all .2s ease;
 }
-.menu-toggle-btn:hover{
+.menu-toggle-btn:hover, .menu-toggle-btn:active{
   background:var(--paper);
+  border-color:var(--blue);
   color:var(--blue-dark);
+}
+.menu-burger-icon{
+  display:inline-flex;
+  flex-direction:column;
+  justify-content:space-between;
+  width:14px;
+  height:10px;
+}
+.menu-burger-icon span{
+  display:block;
+  height:1.5px;
+  width:100%;
+  background:var(--blue-dark);
+  border-radius:1px;
 }
 .menu-backdrop{
   display:none;
   position:fixed;
-  top:0; left:0; right:0; bottom:0;
-  background:rgba(44,51,58,0.4);
+  top:0; left:0; width:100vw; height:100vh;
+  background:rgba(44,51,58,0.45);
   backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
   z-index:98;
   opacity:0;
   transition:opacity .25s ease;
 }
 .menu-backdrop.open{
-  display:block;
+  display:block !important;
   opacity:1;
 }
 
-@media(max-width:860px){
+@media(max-width:960px){
   h1{font-size:28px}
   h2{font-size:22px}
   .container{padding:0 16px}
-  .header-inner{flex-wrap:nowrap; padding:12px 0}
+  .header-inner{flex-wrap:nowrap !important; justify-content:space-between; padding:12px 0}
   
   /* Показываем кнопку бургер */
-  .menu-toggle-btn{display:inline-flex}
+  .menu-toggle-btn{display:inline-flex !important}
 
   /* Боковая панель-шторка справа */
   .nav{
-    position:fixed;
-    top:0;
-    right:-320px;
-    width:300px;
-    height:100vh;
-    background:#ffffff;
-    box-shadow:-4px 0 24px rgba(44,51,58,0.15);
-    z-index:99;
-    flex-direction:column;
-    align-items:stretch;
-    gap:0;
-    padding:24px 20px 40px;
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-    transition:right .3s cubic-bezier(0.16, 1, 0.3, 1);
-    letter-spacing:normal;
-    text-transform:none;
-    font-size:15px;
+    display:flex !important;
+    position:fixed !important;
+    top:0 !important;
+    right:-320px !important;
+    width:290px !important;
+    height:100vh !important;
+    height:100dvh !important;
+    background:#ffffff !important;
+    box-shadow:-6px 0 28px rgba(44,51,58,0.18) !important;
+    z-index:99 !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:0 !important;
+    padding:24px 20px 40px !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    transition:right .3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    letter-spacing:normal !important;
+    text-transform:none !important;
+    font-size:15px !important;
   }
   .nav.open{
-    right:0;
+    right:0 !important;
   }
   
-  /* Заголовок шторки */
-  .nav::before{
-    content:"МЕНЮ САЙТА";
+  /* Шапка внутри шторки с крестиком закрытия */
+  .nav-header-mobile{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-bottom:14px;
+    margin-bottom:12px;
+    border-bottom:1px solid var(--border);
+  }
+  .nav-header-title{
     font-size:11px;
-    letter-spacing:0.1em;
+    letter-spacing:0.08em;
     text-transform:uppercase;
     color:var(--text-light);
     font-weight:700;
-    padding-bottom:14px;
-    margin-bottom:10px;
-    border-bottom:1px solid var(--border);
+  }
+  .nav-close-btn{
+    background:none;
+    border:none;
+    font-size:20px;
+    line-height:1;
+    color:var(--text-light);
+    cursor:pointer;
+    padding:4px 8px;
   }
   
   /* Ссылки внутри шторки */
@@ -150,6 +184,7 @@ p{margin:0 0 16px}
     border-bottom:1px solid var(--border);
     color:var(--text);
     font-weight:500;
+    text-decoration:none;
   }
   .nav > a:hover{
     color:var(--blue-dark);
@@ -162,31 +197,34 @@ p{margin:0 0 16px}
   .dropdown-toggle{
     padding:12px 6px;
     width:100%;
+    display:flex;
     justify-content:space-between;
+    align-items:center;
     font-weight:600;
     color:var(--text);
   }
   .dropdown-menu{
-    position:static;
+    position:static !important;
     display:none;
-    box-shadow:none;
-    border:0;
+    box-shadow:none !important;
+    border:0 !important;
     border-radius:6px;
-    background:var(--paper);
-    margin:0 0 10px 0;
-    padding:4px 0;
+    background:var(--paper) !important;
+    margin:0 0 10px 0 !important;
+    padding:4px 0 !important;
   }
   .dropdown.open .dropdown-menu{
-    display:block;
+    display:block !important;
   }
   .dropdown-menu a{
-    padding:9px 16px;
-    font-size:13.5px;
+    padding:9px 14px;
+    font-size:14px;
     color:var(--text);
+    text-decoration:none;
   }
   .dropdown-menu a:hover{
     color:var(--blue-dark);
-    background:rgba(220,232,245,0.4);
+    background:rgba(220,232,245,0.5);
   }
 }
 

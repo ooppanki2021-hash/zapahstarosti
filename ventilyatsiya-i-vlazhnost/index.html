@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Вентиляция и влажность: аэродинамика запаха, ловушка пластиковых окон и микроклимат</title>
 <meta name="description" content="Почему в квартире с закрытыми окнами концентрируется возрастной запах: аэродинамика застоя, влажность выше 60%, обратная тяга из вентканала, оконные приточные клапаны и мойки воздуха.">
-<link rel="canonical" href="https://zapahstarosti.ru/ventilyatsiya-i-vlazhnost/"><link rel="stylesheet" href="/style.css?v=6"><!--OG-START-->
+<link rel="canonical" href="https://zapahstarosti.ru/ventilyatsiya-i-vlazhnost/"><link rel="stylesheet" href="/style.css?v=7"><!--OG-START-->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Запах старости — научно-практический ресурс">
 <meta property="og:locale" content="ru_RU">
@@ -117,7 +117,7 @@
 </div>
 <a href="/constructor-v5.html" id="adminLink" style="display:none; color:#7A9AB8; border:1px dashed #DCE8F5; padding:4px 10px; border-radius:999px">Конструктор</a>
 </nav>
-<button class="menu-toggle-btn" id="menuToggle" aria-label="Открыть меню">☰ Меню</button>
+<button class="menu-toggle-btn" id="menuToggle" aria-label="Открыть меню"><span class="menu-burger-icon"><span></span><span></span><span></span></span><span>Меню</span></button>
 </div></header>
 <script>
 // скрытый пункт меню только для тебя — показывается если ?admin=1 или localStorage
@@ -218,46 +218,72 @@
 
 <p class="small muted sans">Обновлено 19.09.2026. Подготовлено на основе норм строительной аэродинамики жилых зданий и физики микроклимата.</p>
 </div></main>
+
+
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-  const toggleBtn = document.getElementById('menuToggle');
-  const nav = document.querySelector('.nav');
-  let backdrop = document.getElementById('menuBackdrop');
+(function(){
+  var btn = document.getElementById('menuToggle');
+  var nav = document.querySelector('.nav');
+  var backdrop = document.getElementById('menuBackdrop');
   if(!backdrop){
     backdrop = document.createElement('div');
     backdrop.id = 'menuBackdrop';
     backdrop.className = 'menu-backdrop';
     document.body.appendChild(backdrop);
   }
-  function toggleNav(){
-    const isOpen = nav.classList.toggle('open');
-    backdrop.classList.toggle('open', isOpen);
-    document.body.style.overflow = isOpen ? 'hidden' : '';
+  
+  // Добавляем шапку с крестиком в nav если еще нет
+  if(nav && !nav.querySelector('.nav-header-mobile')){
+    var h = document.createElement('div');
+    h.className = 'nav-header-mobile';
+    h.innerHTML = '<span class="nav-header-title">Меню</span><button class="nav-close-btn" id="navCloseBtn" aria-label="Закрыть">✕</button>';
+    nav.insertBefore(h, nav.firstChild);
+    var closeBtn = document.getElementById('navCloseBtn');
+    if(closeBtn){
+      closeBtn.onclick = function(e){ e.stopPropagation(); closeNav(); };
+    }
   }
-  if(toggleBtn){
-    toggleBtn.addEventListener('click', function(e){
+
+  function openNav(){
+    if(nav) nav.classList.add('open');
+    if(backdrop) backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNav(){
+    if(nav) nav.classList.remove('open');
+    if(backdrop) backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if(btn){
+    btn.onclick = function(e){
       e.stopPropagation();
-      toggleNav();
-    });
+      if(nav && nav.classList.contains('open')){
+        closeNav();
+      } else {
+        openNav();
+      }
+    };
   }
-  backdrop.addEventListener('click', function(){
-    if(nav.classList.contains('open')) toggleNav();
-  });
+
+  backdrop.onclick = function(){
+    closeNav();
+  };
+
   document.addEventListener('click', function(e){
-    const toggle = e.target.closest('.dropdown-toggle');
+    var toggle = e.target.closest('.dropdown-toggle');
     if(toggle){
       e.preventDefault();
-      const dd = toggle.closest('.dropdown');
-      const isOpen = dd.classList.contains('open');
-      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+      var dd = toggle.closest('.dropdown');
+      var isOpen = dd.classList.contains('open');
+      document.querySelectorAll('.dropdown.open').forEach(function(d){ d.classList.remove('open'); });
       if(!isOpen) dd.classList.add('open');
     } else {
       if(!e.target.closest('.dropdown')){
-        document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+        document.querySelectorAll('.dropdown.open').forEach(function(d){ d.classList.remove('open'); });
       }
     }
   });
-});
+})();
 </script>
-
 </body></html>
