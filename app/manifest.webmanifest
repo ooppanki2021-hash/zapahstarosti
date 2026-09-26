@@ -1,7 +1,7 @@
 {
   "name": "Шаги к мечте",
   "short_name": "Шаги",
-  "description": "ДУБРАВА 40+ — путь до первой партии",
+  "description": "ДУБИНА 40+ — путь до первой партии",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
