@@ -251,6 +251,8 @@ p{margin:0 0 16px}
 @media(max-width:640px){
   .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
   .table-scroll .table-min{min-width:520px}
+  .svg-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .svg-scroll svg{min-width:520px}
 }
 
 @media(max-width:800px){
