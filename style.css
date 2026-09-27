@@ -253,6 +253,8 @@ p{margin:0 0 16px}
   .table-scroll .table-min{min-width:520px}
   .svg-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
   .svg-scroll svg{min-width:520px}
+  .list-plain li{flex-direction:column; align-items:flex-start; gap:2px}
+  .list-plain span{font-size:12.5px}
 }
 
 @media(max-width:800px){
