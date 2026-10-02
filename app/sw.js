@@ -1,4 +1,4 @@
-const CACHE = 'mechta-v11';
+const CACHE = 'mechta-v12';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
