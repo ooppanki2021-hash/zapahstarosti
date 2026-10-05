@@ -210,12 +210,21 @@ nav button.on{background:var(--ochre);color:#1a1510;border-color:var(--ochre);fo
   background:#23301f;color:#8fbf7a;letter-spacing:.03em;flex:0 0 auto;margin-top:2px;
 }
 .newday{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:8px}
-input[type=date],input[type=text].ti{
+input[type=date],input[type=text].ti,input[type=password].ti{
   background:var(--panel2);border:1px solid var(--line);color:var(--text);
   border-radius:9px;padding:10px 12px;font:15px inherit;
 }
 input[type=date]{color-scheme:dark}
-input[type=text].ti{flex:1;min-width:190px}
+input[type=text].ti,input[type=password].ti{flex:1;min-width:190px}
+.doc-prod{border:1px solid var(--line);border-radius:12px;margin:10px 0;padding:8px 14px}
+.doc-prod h3{margin:6px 0 6px;font-size:16px}
+.doc-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.doc-row span{flex:1;min-width:150px}
+.doc-view{line-height:1.55;font-size:14px;overflow-x:auto;margin-top:12px}
+.doc-view h1{font-size:20px}.doc-view h2{font-size:17px}.doc-view h3{font-size:15px}
+.doc-view table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0}
+.doc-view td,.doc-view th{border:1px solid var(--line);padding:4px 6px;vertical-align:top;text-align:left}
+.doc-view hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 input:focus{outline:none;border-color:var(--ochre)}
 
 /* ---------- ЗАМЕТКИ ---------- */
@@ -306,6 +315,7 @@ body.locked{overflow:hidden}
   <button data-tab="cal">Календарь</button>
   <button data-tab="miles">Путь</button>
   <button data-tab="notes">Заметки</button>
+  <button data-tab="docs">Документы</button>
   <button data-tab="data">Данные</button>
 </nav>
 
@@ -370,6 +380,34 @@ body.locked{overflow:hidden}
   <div class="panel">
     <h2>Записи</h2>
     <div id="noteList"></div>
+  </div>
+</section>
+
+<!-- ============ ДОКУМЕНТЫ ============ -->
+<section id="docs" class="hide">
+  <div class="panel" id="docsLock">
+    <h2>Документы для технолога</h2>
+    <div class="row">
+      <input type="password" class="ti" id="docPass" placeholder="Пароль документов" autocomplete="off" onkeydown="if(event.key==='Enter')openDocs()">
+      <button class="btn" onclick="openDocs()">Открыть</button>
+    </div>
+    <div class="hint" id="docsMsg"></div>
+    <div class="hint">
+      <b>Почему отдельный пароль.</b> Рецептуры — главная ценность проекта. Здесь они лежат в зашифрованном виде:
+      без пароля их не прочитать даже из кода страницы. Пароль нигде не сохраняется — после закрытия окна его нужно ввести снова.
+    </div>
+  </div>
+  <div class="panel hide" id="docsList">
+    <h2>Документы для технолога</h2>
+    <div id="docsBox"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost" onclick="lockDocs()">Закрыть документы</button></div>
+  </div>
+  <div class="panel hide" id="docsRead">
+    <div class="row">
+      <button class="btn ghost" onclick="renderDocs()">← К списку</button>
+      <button class="btn" id="docWordBtn">Скачать Word</button>
+    </div>
+    <div class="doc-view" id="docView"></div>
   </div>
 </section>
 
@@ -514,14 +552,14 @@ const DEFAULT_TASKS = [
 ];
 
 const DEFAULT_MILES = [
-{n:'Формулы разработаны', d:'5 рецептур готовы', done:true,
- why:'Это фундамент. Рецептура — это точный список: что, сколько граммов и в каком порядке смешивать. Без неё не о чем говорить с производством и не на что получать документы. У тебя она есть, и это уже больше, чем у большинства, кто «хочет свой бренд».',
+{n:'Формулы разработаны', d:'5 продуктов, документы для технолога готовы', done:true,
+ why:'Это фундамент. Рецептура — это точный список: что, сколько граммов и в каком порядке смешивать. Без неё не о чем говорить с производством и не на что получать документы. У тебя их пять, и на каждую есть рецептурная карта, проект технических условий и письмо технологу. Всё это — во вкладке «Документы», под отдельным паролем: составы там зашифрованы. Формулы пока на бумаге, проверит их пробная партия.',
  sub:[
-  {t:'Мыло-синдет — это мыло без щёлочи, моет мягко и не сушит кожу', done:true},
-  {t:'Гель для душа, 5 литров пробной партии', done:true},
-  {t:'Дезодорант-ролик — без алюминия и без спирта', done:true},
-  {t:'Порошок для цветного белья — без отбеливателя, чтобы не выедал цвет', done:true},
-  {t:'Порошок для светлого белья — с отбеливателем, он же перкарбонат', done:true}
+  {t:'Мыло-синдет v1.1 — брусок 90 г, без щёлочи, моет мягко и не сушит кожу', done:true},
+  {t:'Гель для душа v5.3 — с экстрактом коры дуба, кислотность 5,2', done:true},
+  {t:'Дезодорант-ролик v2.2 — без алюминия, спирта и отдушки', done:true},
+  {t:'Порошок универсальный v1.1 — для цветного и белого, с ферментами, без отбеливателя', done:true},
+  {t:'Влажные салфетки v1.1 — 15 штук в сумку и 80 крупных для ухода за лежачими', done:true}
 ]},
 
 {n:'Сайт построен', d:'26 страниц, счётчики работают', done:true,
@@ -866,7 +904,7 @@ function migrate(){
 
 // Версия текстов пути. Поднимаем её, когда переписаны формулировки шагов.
 // Тогда тексты обновятся у всех, а отметки о выполнении сохранятся.
-const MILES_TEXT_VERSION = 7;
+const MILES_TEXT_VERSION = 8;
 function refreshMileTexts(){
   if(!S || !Array.isArray(S.miles)) return;
   if(S.milesTextVer === MILES_TEXT_VERSION) return;
@@ -1216,12 +1254,91 @@ function resetAll(){
   S=blank(); save(); renderAll();
 }
 
+/* ======================= ДОКУМЕНТЫ (зашифрованы) ======================= */
+const DOCS_SALT = '37dd402c6512322838e3fef0f53b749b';
+const DOCS_ITER = 1000000;
+const DOCS_INLINE = '';
+let DOCS = null, DOCS_KEY = null;
+function hexToBytes(h){const u=new Uint8Array(h.length/2);for(let i=0;i<u.length;i++)u[i]=parseInt(h.substr(i*2,2),16);return u;}
+function b64ToBytes(s){const b=atob(s);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+async function docsKey(pass){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt:hexToBytes(DOCS_SALT), iterations:DOCS_ITER, hash:'SHA-256'},
+    base, {name:'AES-GCM', length:256}, false, ['decrypt']);
+}
+async function docsDecrypt(key, bytes){
+  return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv:bytes.slice(0,12)}, key, bytes.slice(12)));
+}
+async function docsFetch(name){
+  const r = await fetch('docs/'+name); if(!r.ok) throw new Error('net');
+  return new Uint8Array(await r.arrayBuffer());
+}
+async function openDocs(){
+  const msg = document.getElementById('docsMsg');
+  const pass = document.getElementById('docPass').value;
+  if(!pass){ msg.textContent = 'Введите пароль.'; return; }
+  if(!window.crypto || !crypto.subtle){ msg.textContent = 'Здесь документы не открываются. Откройте приложение по адресу https://zapahstarosti.ru/app/'; return; }
+  msg.textContent = 'Открываю…';
+  let raw;
+  try{ raw = DOCS_INLINE ? b64ToBytes(DOCS_INLINE) : await docsFetch('docs.bin'); }
+  catch(e){ msg.textContent = 'Не удалось загрузить документы. При первом открытии нужен интернет.'; return; }
+  try{
+    const key = await docsKey(pass);
+    DOCS = JSON.parse(new TextDecoder().decode(await docsDecrypt(key, raw)));
+    DOCS_KEY = key;
+  }catch(e){ msg.textContent = 'Неверный пароль.'; return; }
+  document.getElementById('docPass').value = ''; msg.textContent = '';
+  renderDocs();
+}
+function renderDocs(){
+  if(!DOCS) return lockDocs();
+  document.getElementById('docsLock').classList.add('hide');
+  document.getElementById('docsRead').classList.add('hide');
+  document.getElementById('docsList').classList.remove('hide');
+  document.getElementById('docsBox').innerHTML = DOCS.products.map((p,pi)=>`
+    <div class="doc-prod"><h3>${esc(p.name)}</h3>
+    ${p.docs.map((d,di)=>`<div class="doc-row"><span>${esc(d.title)}</span>
+      <button class="btn ghost" onclick="readDoc(${pi},${di})">Читать</button>
+      ${(!DOCS_INLINE && d.w) ? `<button class="btn ghost" onclick="wordDoc(${pi},${di})">Word</button>` : ''}
+    </div>`).join('')}</div>`).join('');
+}
+function readDoc(pi, di){
+  const d = DOCS.products[pi].docs[di];
+  document.getElementById('docView').innerHTML = d.html;
+  const b = document.getElementById('docWordBtn');
+  b.classList.toggle('hide', !!DOCS_INLINE || !d.w);
+  b.onclick = () => wordDoc(pi, di);
+  document.getElementById('docsList').classList.add('hide');
+  document.getElementById('docsRead').classList.remove('hide');
+  window.scrollTo(0,0);
+}
+async function wordDoc(pi, di){
+  const d = DOCS.products[pi].docs[di];
+  try{
+    toast('Готовлю файл…');
+    const plain = await docsDecrypt(DOCS_KEY, await docsFetch(d.w));
+    const blob = new Blob([plain], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = d.fname;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  }catch(e){ toast('Не удалось скачать файл. Нужен интернет.'); }
+}
+function lockDocs(){
+  DOCS = null; DOCS_KEY = null;
+  document.getElementById('docView').innerHTML = '';
+  document.getElementById('docsBox').innerHTML = '';
+  document.getElementById('docsList').classList.add('hide');
+  document.getElementById('docsRead').classList.add('hide');
+  document.getElementById('docsLock').classList.remove('hide');
+}
+
 /* ======================= ВКЛАДКИ ======================= */
 document.querySelectorAll('nav button').forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
-    ['today','cal','miles','notes','data'].forEach(id=>
+    ['today','cal','miles','notes','docs','data'].forEach(id=>
       document.getElementById(id).classList.toggle('hide', id!==b.dataset.tab));
   };
 });
