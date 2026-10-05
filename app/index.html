@@ -182,6 +182,19 @@ nav button.on{background:var(--ochre);color:#1a1510;border-color:var(--ochre);fo
   border-radius:8px;padding:8px 10px;font:14px inherit;color-scheme:dark;
 }
 .more select{cursor:pointer}
+.mini{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;font-family:inherit}
+.mini:hover{border-color:var(--ochre);color:var(--text)}
+.ed-ctrl{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.ed-form{padding:12px 0}
+.ed-l{display:block;font-size:12px;color:var(--dim);margin:12px 0 4px}
+.ed-in{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px}
+.ed-in:focus{outline:none;border-color:var(--ochre)}
+.ed-sub{display:flex;gap:4px;align-items:center;margin:5px 0}
+.ed-sub .ed-in{flex:1;min-width:0}
+.upd{border:1px solid var(--ochre);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.upd-t{font-weight:600}
+.upd-i{border-top:1px solid var(--line);padding:9px 0;font-size:14px;line-height:1.5}
+.upd-i ul{margin:4px 0 0 18px}
 .att{margin:8px 0;border:1px dashed var(--line);border-radius:10px;padding:8px 12px}
 .att-t{font-weight:600;flex:1;min-width:150px}
 .att-body{white-space:pre-wrap;font-size:13.5px;margin-top:8px;line-height:1.5}
@@ -369,6 +382,7 @@ body.locked{overflow:hidden}
     <div class="hint" style="margin:0 0 16px">Нажми на шаг — раскроются подшаги. Отмечай их по мере выполнения: когда закрыты все, шаг закрывается сам.<br><br>
     Дат нет намеренно — сроки сдвигаются, а просрочки давят. Вместо дат указано <b>сколько времени занимает</b> и <b>сколько стоит</b>.<br><br>
     Где написано <b>ВАРИАНТ А / Б</b> — это развилка, выбрать нужно что-то одно.</div>
+    <div id="pathTools"></div>
     <div id="mileList"></div>
   </div>
 </section>
@@ -403,6 +417,14 @@ body.locked{overflow:hidden}
   <div class="panel hide" id="docsList">
     <h2>Документы для технолога</h2>
     <div id="docsBox"></div>
+    <div class="doc-prod"><h3>Мои файлы</h3>
+      <div id="filesBox" class="hint" style="margin-top:0"></div>
+      <div class="row hide" id="filesUpRow">
+        <input type="file" id="fileIn" multiple class="hide" onchange="uploadFiles(this.files)">
+        <button class="btn" onclick="document.getElementById('fileIn').click()">＋ Загрузить файл</button>
+      </div>
+      <div class="hint" id="filesMsg"></div>
+    </div>
     <div class="row" style="margin-top:14px"><button class="btn ghost" onclick="lockDocs()">Закрыть документы</button></div>
   </div>
   <div class="panel hide" id="docsRead">
@@ -417,6 +439,25 @@ body.locked{overflow:hidden}
 <!-- ============ ДАННЫЕ ============ -->
 <section id="data" class="hide">
   <div class="panel">
+    <h2>Синхронизация</h2>
+    <div class="hint" id="syncStatus" style="margin-top:0"></div>
+    <div class="row" id="syncConnectRow">
+      <input type="password" class="ti" id="syncPass" placeholder="Пароль синхронизации" autocomplete="off" onkeydown="if(event.key==='Enter')syncConnect()">
+      <button class="btn" onclick="syncConnect()">Подключить</button>
+    </div>
+    <div class="row hide" id="syncOnRow">
+      <button class="btn ghost" onclick="syncNow()">Обновить сейчас</button>
+      <button class="btn ghost" onclick="syncDisconnect()">Отключить на этом устройстве</button>
+    </div>
+    <div class="hint">
+      <b>Как это работает.</b> Галочки, заметки, дела и правки пути хранятся в зашифрованном файле на GitHub.
+      Подключите синхронизацию на каждом устройстве один раз — дальше приложение само подтягивает актуальную версию
+      при открытии и отправляет изменения через несколько секунд после правки.<br><br>
+      Если правили на двух устройствах почти одновременно, сохранится то, что изменено позже.
+      Помощник тоже видит этот файл и может его поправить по вашей просьбе.
+    </div>
+  </div>
+  <div class="panel">
     <h2>Сохранность</h2>
     <div class="hint" id="storageState"></div>
     <div class="row">
@@ -426,7 +467,7 @@ body.locked{overflow:hidden}
     </div>
     <div class="hint">
       <b>Как это работает.</b> Всё хранится прямо в твоём браузере — галочки, заметки, прогресс.
-      Ничего никуда не уходит.<br><br>
+      Без синхронизации ничего никуда не уходит.<br><br>
       <b>Когда нужен помощник.</b> Нажми «Выгрузить состояние» — скачается маленький файл.
       Пришли его в чат, и я увижу, где ты, что сделано и что буксует.
       «Загрузить состояние» — вернуть данные обратно или перенести на другое устройство.<br><br>
@@ -441,8 +482,8 @@ body.locked{overflow:hidden}
       <b>Про код.</b> Закрывает приложение от чужих глаз, если кто-то случайно наберёт адрес папки.
       Спрашивается один раз за сеанс — пока окно открыто, повторно не побеспокоит.<br><br>
       Код хранится отдельно на каждом устройстве: сменила на компьютере — на телефоне остался прежний.<br><br>
-      ⚠️ Это защита от посторонних глаз, а не сейф. Данные всё равно лежат только у тебя
-      на устройстве и на сайт не попадают — там пустая заготовка.
+      ⚠️ Это защита от посторонних глаз, а не сейф. Без синхронизации данные лежат только на устройстве;
+      с синхронизацией — ещё и в зашифрованном файле на GitHub. На сайт они не попадают.
     </div>
   </div>
 </section>
@@ -555,7 +596,7 @@ const DEFAULT_TASKS = [
 ];
 
 const DEFAULT_MILES = [
-{n:'Формулы разработаны', d:'5 продуктов, документы для технолога готовы', done:true,
+{k:'m01', n:'Формулы разработаны', d:'5 продуктов, документы для технолога готовы', done:true,
  why:'Это фундамент. Рецептура — это точный список: что, сколько граммов и в каком порядке смешивать. Без неё не о чем говорить с производством и не на что получать документы. У тебя их пять, и на каждую есть рецептурная карта, проект технических условий и письмо технологу. Всё это — во вкладке «Документы», под отдельным паролем: составы там зашифрованы. Формулы пока на бумаге, проверит их пробная партия.',
  sub:[
   {t:'Мыло-синдет v1.1 — брусок 90 г, без щёлочи, моет мягко и не сушит кожу', done:true},
@@ -565,7 +606,7 @@ const DEFAULT_MILES = [
   {t:'Влажные салфетки v1.1 — 15 штук в сумку и 80 крупных для ухода за лежачими', done:true}
 ]},
 
-{n:'Сайт построен', d:'26 страниц, счётчики работают', done:true,
+{k:'m02', n:'Сайт построен', d:'26 страниц, счётчики работают', done:true,
  why:'Сайт — это твой бесплатный продавец, который работает круглосуточно и не просит процент. Человек ищет в интернете «как убрать запах», попадает на твою статью, проникается доверием — и покупает. Маркетплейс за то же самое берёт комиссию.',
  sub:[
   {t:'Куплен домен, подключён бесплатный хостинг, работает защищённое соединение', done:true},
@@ -574,7 +615,7 @@ const DEFAULT_MILES = [
   {t:'Проверена техническая часть — ошибок нет', done:true}
 ]},
 
-{n:'Упаковка отрисована', d:'Лицевая сторона, оборот, боковины, логотип', done:true,
+{k:'m03', n:'Упаковка отрисована', d:'Лицевая сторона, оборот, боковины, логотип', done:true,
  why:'Упаковка продаёт в тот момент, когда тебя рядом нет. На полке и в карточке маркетплейса человек за две секунды решает, брать или пройти мимо. Плюс без правильных надписей на обороте товар просто не примут к продаже — это требование закона.',
  sub:[
   {t:'Лицевая сторона обоих порошков', done:true},
@@ -583,7 +624,7 @@ const DEFAULT_MILES = [
   {t:'Логотип: кольца дуба, лист, «40+» цвета охры', done:true}
 ]},
 
-{n:'Смета и план готовы', d:'Три варианта бюджета', done:true,
+{k:'m04', n:'Смета и план готовы', d:'Три варианта бюджета', done:true,
  why:'Ты знаешь, сколько стоит вход. Это защищает от главной ошибки новичка — начать, потратить половину денег и застрять на середине без возможности ни закончить, ни вернуть вложенное.',
  sub:[
   {t:'Три варианта: один продукт / три продукта / вся линейка', done:true},
@@ -591,7 +632,7 @@ const DEFAULT_MILES = [
   {t:'Составлены 9 вопросов для обзвона производств', done:true}
 ]},
 
-{n:'ШАГ 5. Сайт вычищен и переписан', d:'⏱ 3–4 недели · 💰 0 ₽ · делаешь сама', done:false,
+{k:'m05', n:'ШАГ 5. Сайт вычищен и переписан', d:'⏱ 3–4 недели · 💰 0 ₽ · делаешь сама', done:false,
  why:'Сейчас 20 страниц из 26 спрятаны от поиска. Не потому, что сломаны — тексты пока слабые, поверхностные. Открыть их сейчас значит показать поисковику плохой сайт, а он это запомнит надолго. Сначала переписываем, потом открываем. Это единственный шаг, где нужно только твоё время, ноль денег — и он даёт бесплатных покупателей на годы вперёд.',
  sub:[
   {t:'Убрана себестоимость, сравнение с хурмой и обрывок черновика — то, что нельзя показывать покупателю', done:true},
@@ -606,7 +647,7 @@ const DEFAULT_MILES = [
   {t:'Через две недели открыть следующие', done:false}
 ]},
 
-{n:'ШАГ 6. Производство найдено', d:'⏱ 2–3 недели · 💰 0 ₽, пока только переговоры', done:false,
+{k:'m06', n:'ШАГ 6. Производство найдено', d:'⏱ 2–3 недели · 💰 0 ₽, пока только переговоры', done:false,
  why:'Свой завод не нужен. Есть готовые фабрики, которые сделают твой продукт по твоей рецептуре — это называется контрактное производство. Ты платишь за партию, они варят. Этот шаг бесплатный: ты просто звонишь и собираешь условия. Но именно от выбора площадки зависит цена каждой пачки на годы вперёд.',
  sub:[
   {t:'Составить список 8–10 фабрик, которые делают бытовую химию на заказ', done:false},
@@ -620,7 +661,7 @@ const DEFAULT_MILES = [
   {t:'Подписать договор и соглашение о неразглашении, чтобы рецептуру не увели', done:false}
 ]},
 
-{n:'ШАГ 7. Документы запущены', d:'⏱ 1–1,5 месяца ожидания · 💰 25–100 тыс ₽ · САМЫЙ ДОЛГИЙ', done:false,
+{k:'m07', n:'ШАГ 7. Документы запущены', d:'⏱ 1–1,5 месяца ожидания · 💰 25–100 тыс ₽ · САМЫЙ ДОЛГИЙ', done:false,
  why:'Без документа продавать нельзя — ни на маркетплейсе, ни в магазине, ни законно со своего сайта. Нужен СГР: свидетельство о государственной регистрации, официальное разрешение продавать бытовую химию. Получают его больше месяца, и всё это время ничего сделать нельзя, только ждать. Поэтому подавать надо первым делом, а пока ждёшь — заниматься сайтом и упаковкой. Это единственный шаг, который нельзя ускорить деньгами.',
  sub:[
   {t:'Зарегистрировать ИП или ООО, если ещё нет — на физлицо документ не выдадут', done:false},
@@ -641,7 +682,7 @@ const DEFAULT_MILES = [
   {t:'Проверить, что документ оформлен на тебя, а не на завод. Иначе продавать сможет только завод', done:false}
 ]},
 
-{n:'ШАГ 8. Доказательства и защита имени', d:'⏱ 1–2 месяца · 💰 115–220 тыс ₽ · можно отложить', done:false,
+{k:'m08', n:'ШАГ 8. Доказательства и защита имени', d:'⏱ 1–2 месяца · 💰 115–220 тыс ₽ · можно отложить', done:false,
  why:'Два дела, оба про защиту. Первое: тест на запах. Без протокола лаборатории на упаковке нельзя писать «от возрастного запаха» — только состав. Тест делают на добровольцах 60+: сравнивают гель с таким же гелем без дуба. Гель и мыло — два отдельных теста, примерно по 40 тыс ₽. Измерять 2-ноненаль прибором пока не нужно: такой готовой услуги нет. Второе: регистрация имени. Пока «ДУБИНА» не зарегистрирована, любой может назваться так же, а при плохом раскладе зарегистрировать первым и запретить это имя тебе. Оба пункта дорогие, оба можно отложить — но имя лучше подать пораньше, очередь там длинная.',
  sub:[
   {t:'Решить: делаем тест на запах или пока пишем на упаковке только состав, без обещаний', done:false},
@@ -657,7 +698,7 @@ const DEFAULT_MILES = [
   {title:'Контакты лабораторий', text:"ЦЭМиЭ — Центр эстетической медицины и экспертизы (Москва)\nЕсть открытый прайс: «Дезодорирующий эффект» — 40 000 ₽ за один продукт.\nТелефон: +7 (499) 136-75-05\nПочта: medcenter.expert@mail.ru\nСайт: экспертиза-косметики.рф → раздел «Цены»\nАдрес: Москва, Ленинградский проспект, 35, стр. 2. Пн–Пт 10:00–19:00\n\nОптимаТест (Санкт-Петербург)\nИспытания эффективности косметики, в том числе «дезодорирующий эффект». Цена по запросу.\nТелефон: 8 (800) 200-24-94 (бесплатно), +7 (812) 409-39-49\nПочта: info@optimatest.ru\nПн–Пт 9:30–18:00\n\nЦСС Групп (Москва)\nИспытания для декларации и эффективности, от 15 000 ₽, 10–25 рабочих дней. Образцы можно отправить почтой.\nТелефон: +7 (916) 366-27-07\nПочта: info@sgr-css.ru\n\nВажно: ОптимаТест и ЦСС Групп — посредники, образцы они передают в аккредитованную лабораторию. В письме уже есть вопрос, в какую именно, и просьба прислать аттестат аккредитации."}
 ]},
 
-{n:'ШАГ 9. Образцы сварены и одобрены', d:'⏱ 2–4 недели · 💰 10–30 тыс ₽', done:false,
+{k:'m09', n:'ШАГ 9. Образцы сварены и одобрены', d:'⏱ 2–4 недели · 💰 10–30 тыс ₽', done:false,
  why:'Рецептура на бумаге и продукт в руках — разные вещи. У фабрики другое оборудование, поэтому состав придётся немного подогнать. Пробная партия нужна, чтобы поймать проблемы до того, как ты оплатишь тысячу пачек. Главный риск именно здесь: танины дуба могут окрасить белое бельё.',
  sub:[
   {t:'Передать рецептуру технологу фабрики', done:false},
@@ -670,7 +711,7 @@ const DEFAULT_MILES = [
   {t:'Утвердить финальный состав письменно, чтобы фабрика потом ничего не подменила', done:false}
 ]},
 
-{n:'ШАГ 10. Упаковка напечатана', d:'⏱ 2–3 недели · 💰 25–40 тыс ₽ · ТОЛЬКО ПОСЛЕ ДОКУМЕНТА', done:false,
+{k:'m10', n:'ШАГ 10. Упаковка напечатана', d:'⏱ 2–3 недели · 💰 25–40 тыс ₽ · ТОЛЬКО ПОСЛЕ ДОКУМЕНТА', done:false,
  why:'Тут одна ловушка, которая стоит всего тиража. На упаковке обязан стоять номер свидетельства. Напечатаешь раньше, чем его получишь — весь тираж в макулатуру, деньги на ветер. Поэтому первый пункт здесь — стоп-проверка.',
  sub:[
   {t:'⛔ СТОП-ПРОВЕРКА: номер свидетельства уже на руках? Если нет — дальше не идти', done:false},
@@ -689,7 +730,7 @@ const DEFAULT_MILES = [
   {t:'Запустить тираж', done:false}
 ]},
 
-{n:'ШАГ 11. Первая партия выпущена', d:'⏱ 3–4 недели · 💰 60–120 тыс ₽ · продукт существует', done:false,
+{k:'m11', n:'ШАГ 11. Первая партия выпущена', d:'⏱ 3–4 недели · 💰 60–120 тыс ₽ · продукт существует', done:false,
  why:'Момент, когда идея становится вещью, которую можно взять в руки. Партию берём небольшую, 300–500 штук: если что-то не так, потери небольшие, а склад не забит товаром, который не продаётся. Маркировку в «Честном знаке» оформляешь до выпуска: регистрация, каталог и поддержка бесплатны, платишь только за токен, КриптоПро и сами коды — около 4–6,5 тыс ₽ на старте.',
  sub:[
   {t:'Согласовать объём партии — 300–500 штук, не больше', done:false},
@@ -710,7 +751,7 @@ const DEFAULT_MILES = [
   {t:'Спросить на линии поддержки: нужен ли код на канистру 5 л и на бесплатные образцы 250 мл', done:false}
 ]},
 
-{n:'ШАГ 12. Продажи пошли', d:'⏱ 3–6 недель · 💰 70–210 тыс ₽ на съёмку и рекламу', done:false,
+{k:'m12', n:'ШАГ 12. Продажи пошли', d:'⏱ 3–6 недель · 💰 70–210 тыс ₽ на съёмку и рекламу', done:false,
  why:'Товар есть — теперь его должны увидеть. Маркетплейс даёт готовый поток покупателей, но берёт комиссию и требует вложений в рекламу. Свой сайт оставляет всю прибыль, но людей туда надо привести самой. Разумно делать и то, и другое: маркетплейс для потока и отзывов, сайт для прибыли.',
  sub:[
   {t:'Заказать фотосъёмку, 20–60 тыс ₽ — на плохих фото не покупают', done:false},
@@ -725,7 +766,7 @@ const DEFAULT_MILES = [
   {t:'Собрать первые 10 отзывов', done:false}
 ]},
 
-{n:'ШАГ 13. Продукт доказал себя', d:'⏱ 3–6 месяцев · 💰 0–30 тыс ₽ · без этого дальше нельзя', done:false,
+{k:'m13', n:'ШАГ 13. Продукт доказал себя', d:'⏱ 3–6 месяцев · 💰 0–30 тыс ₽ · без этого дальше нельзя', done:false,
  why:'Самый важный и самый неприятный шаг: здесь проверяется, нужен ли продукт вообще. Главная цифра — сколько людей купили второй раз. Если мало, значит продукт не понравился, и вкладываться в расширение нельзя: ты просто умножишь неудачу. Лучше честно признать и починить рецептуру, чем масштабировать то, что не работает. Именно поэтому шаг стоит перед выходом в сети и пансионаты.',
  sub:[
   {t:'Набрать 100 отзывов на площадке', done:false},
@@ -738,7 +779,7 @@ const DEFAULT_MILES = [
   {t:'⛔ СТОП: если повторно покупают мало — чинить продукт, а не расширяться', done:false}
 ]},
 
-{n:'ШАГ 14. Первый оптовый покупатель', d:'⏱ 2–4 месяца · 💰 20–50 тыс ₽ · самый недооценённый шаг', done:false,
+{k:'m14', n:'ШАГ 14. Первый оптовый покупатель', d:'⏱ 2–4 месяца · 💰 20–50 тыс ₽ · самый недооценённый шаг', done:false,
  why:'Пансионаты и патронажные службы — идеальный клиент для этого продукта. Там запах стоит каждый день, решение ищут постоянно, и покупают не пачку, а мешками и регулярно. Один такой договор даёт больше, чем сотня розничных покупок, и не требует рекламы. А ещё даёт бумагу: официальный отзыв на бланке учреждения. Без такой бумаги в федеральные сети потом не зайти — поэтому этот шаг стоит раньше.',
  sub:[
   {t:'Составить список 30 частных пансионатов в своём регионе', done:false},
@@ -755,7 +796,7 @@ const DEFAULT_MILES = [
   {t:'Или через посредника по медтоварам — прибыль меньше, зато он уже знает всех', done:false}
 ]},
 
-{n:'ШАГ 15. Линейка развёрнута', d:'⏱ 6–12 месяцев · 💰 400–700 тыс ₽ · по одному продукту за раз', done:false,
+{k:'m15', n:'ШАГ 15. Линейка развёрнута', d:'⏱ 6–12 месяцев · 💰 400–700 тыс ₽ · по одному продукту за раз', done:false,
  why:'Когда первый продукт кормит себя сам, можно добавлять следующий. Правило жёсткое: новый продукт запускается только на деньги, которые вернул предыдущий. Иначе получится пять недоделанных товаров вместо одного работающего. Учти: мыло, гель и дезодорант — это косметика, у них другой документ и другая проверка, не такая, как у порошка.',
  sub:[
   {t:'Запустить второй порошок — для светлого белья', done:false},
@@ -768,7 +809,7 @@ const DEFAULT_MILES = [
   {t:'⛔ Правило: новый продукт только после того, как окупился предыдущий', done:false}
 ]},
 
-{n:'ШАГ 16. Сайт вышел в топ', d:'⏱ 12–18 месяцев от начала · 💰 0–100 тыс ₽ · самый дешёвый поток людей', done:false,
+{k:'m16', n:'ШАГ 16. Сайт вышел в топ', d:'⏱ 12–18 месяцев от начала · 💰 0–100 тыс ₽ · самый дешёвый поток людей', done:false,
  why:'К этому моменту сайт начинает приводить покупателей бесплатно и постоянно. Реклама работает, пока за неё платишь: перестал — поток исчез. Статья в топе поиска работает годами сама. Это единственный канал, который со временем дешевеет, а не дорожает. И он твой — площадка не может завтра поменять правила и обнулить тебя.',
  sub:[
   {t:'Все 26 страниц переписаны и открыты для поиска', done:false},
@@ -781,7 +822,7 @@ const DEFAULT_MILES = [
   {t:'Добиться упоминаний в СМИ и на профильных сайтах', done:false}
 ]},
 
-{n:'ШАГ 17. Маркетплейсы масштабированы', d:'⏱ 12–24 месяца · 💰 150–400 тыс ₽', done:false,
+{k:'m17', n:'ШАГ 17. Маркетплейсы масштабированы', d:'⏱ 12–24 месяца · 💰 150–400 тыс ₽', done:false,
  why:'Площадки нужны не только ради выручки. Они дают то, что потом попросят федеральные сети: цифры продаж по регионам и оценки живых покупателей. Без этих доказательств в сеть заходить не с чем — поэтому шаг стоит перед переговорами с сетями.',
  sub:[
   {t:'Ozon: карточка, отзывы, участие в акциях', done:false},
@@ -793,7 +834,7 @@ const DEFAULT_MILES = [
   {t:'Нанять помощника на карточки и отзывы — одна ты это уже не потянешь', done:false}
 ]},
 
-{n:'ШАГ 18. Федеральные сети', d:'⏱ 6–12 месяцев переговоров · 💰 500 тыс–2 млн ₽ запаса денег', done:false,
+{k:'m18', n:'ШАГ 18. Федеральные сети', d:'⏱ 6–12 месяцев переговоров · 💰 500 тыс–2 млн ₽ запаса денег', done:false,
  why:'Пятёрочка, Магнит, Лента. Хорошая новость: платить за место на полке запрещено законом, никаких «заносов». Сложность в другом — сеть заплатит за товар не сразу, а через 25–40 дней после поставки. Всё это время ты уже потратилась на производство и ждёшь. Поэтому нужен запас денег: не на вход, а на то, чтобы прожить между отгрузкой и оплатой. Заходить надо через официальный сайт для поставщиков — звонки и знакомства там не работают.',
  sub:[
   {t:'Зарегистрироваться на сайте для поставщиков X5 — это сразу Пятёрочка, Перекрёсток и Чижик', done:false},
@@ -812,7 +853,7 @@ const DEFAULT_MILES = [
   {t:'Подписать договор поставки', done:false}
 ]},
 
-{n:'ШАГ 19. Производство под контролем', d:'⏱ 2–3 года от старта · 💰 2–10 млн ₽', done:false,
+{k:'m19', n:'ШАГ 19. Производство под контролем', d:'⏱ 2–3 года от старта · 💰 2–10 млн ₽', done:false,
  why:'На больших объёмах чужая фабрика начинает съедать слишком много прибыли, а ты зависишь от её графика и качества. Своя линия это меняет. Но покупать оборудование раньше времени — самая дорогая ошибка: оно окупается только при постоянных больших заказах. Поэтому шаг стоит последним, когда спрос уже доказан.',
  sub:[
   {t:'Выйти на объёмы от 10 000 штук — цена за пачку падает примерно вдвое', done:false},
@@ -824,7 +865,7 @@ const DEFAULT_MILES = [
   {t:'Взять технолога в штат', done:false}
 ]},
 
-{n:'ШАГ 20. Вершина', d:'⏱ 3–5 лет · 💰 бизнес кормит себя сам', done:false,
+{k:'m20', n:'ШАГ 20. Вершина', d:'⏱ 3–5 лет · 💰 бизнес кормит себя сам', done:false,
  why:'Точка, ради которой всё затевалось. Бизнес работает без твоего ежедневного участия, продукт стоит там, где его ищут, а имя защищено. И главное — то, о чём стеснялись говорить вслух, стало обычной покупкой для родителей. Это и есть настоящий результат, а не выручка.',
  sub:[
   {t:'Название узнают без объяснений', done:false},
@@ -906,42 +947,39 @@ function migrate(){
   save();
 }
 
-// Версия текстов пути. Поднимаем её, когда переписаны формулировки шагов.
-// Тогда тексты обновятся у всех, а отметки о выполнении сохранятся.
-const MILES_TEXT_VERSION = 9;
+// Версия текстов пути. Поднимаем её, когда помощник меняет шаги.
+// Если основа (S.base) уже есть, изменения не применяются сами:
+// во вкладке «Путь» по каждому спрашивается «Принять / Оставить моё».
+const MILES_TEXT_VERSION = 10;
 function refreshMileTexts(){
   if(!S || !Array.isArray(S.miles)) return;
+  if(!S.base){
+    // Первый запуск версии с редактированием: тексты по позиции, как раньше,
+    // затем запоминаем основу — с ней сравниваются будущие обновления.
+    if(S.milesTextVer !== MILES_TEXT_VERSION){
+      S.miles.forEach((m,i) => {
+        const src = DEFAULT_MILES[i]; if(!src) return;
+        m.n = src.n; m.d = src.d; m.why = src.why; m.sub = subsFromDefault(src, m.sub);
+      });
+    }
+    S.miles.forEach((m,i) => { if(!m.k && DEFAULT_MILES[i]) m.k = DEFAULT_MILES[i].k; if(!m.id) m.id = m.k || ('m'+i); });
+    S.base = snapDefaults(); S.milesTextVer = MILES_TEXT_VERSION; save(); return;
+  }
   if(S.milesTextVer === MILES_TEXT_VERSION) return;
-  // Обновляем только формулировки. Совпадение по позиции: число шагов и
-  // подшагов не менялось, менялись только слова.
-  S.miles.forEach((m,i) => {
-    const src = DEFAULT_MILES[i];
-    if(!src) return;
-    m.n = src.n;
-    m.d = src.d;
-    m.why = src.why;
-    // Отметки переносим по тексту подшага, поэтому вставка новых подшагов
-    // в середину списка их не сдвигает. Если текст переписан на том же месте,
-    // отметка берётся по позиции.
-    const ss = src.sub || [];
-    const old = Array.isArray(m.sub) ? m.sub : [];
-    const byText = {};
-    old.forEach(s => { if(s && s.t) byText[s.t] = !!s.done; });
-    const newTexts = new Set(ss.map(s => s.t));
-    m.sub = ss.map((s,k) => {
-      let done = false;
-      if(Object.prototype.hasOwnProperty.call(byText, s.t)) done = byText[s.t];
-      else if(old[k] && !newTexts.has(old[k].t)) done = !!old[k].done;
-      return {...s, done};
-    });
-  });
-  S.milesTextVer = MILES_TEXT_VERSION;
-  save();
+  if(!diffBase().length){ S.milesTextVer = MILES_TEXT_VERSION; save(); }
 }
 
-function save(){
+function saveLocal(){
   if(!canStore) return;
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ canStore=false; renderStorage(); }
+}
+function save(){
+  // При включённой синхронизации отмечаем время изменения и отправляем на GitHub.
+  if(syncReady && syncKey){
+    const j = stateJSON();
+    if(j !== syncLastJSON){ S.updatedAt = Date.now(); syncLastJSON = j; syncSchedule(); }
+  }
+  saveLocal();
 }
 
 /* ======================= УТИЛИТЫ ======================= */
@@ -1062,14 +1100,28 @@ function renderCal(){
 }
 
 function renderMiles(){
-  document.getElementById('mileList').innerHTML = S.miles.map((m,mi)=>{
-    const sub = m.sub||[];
-    const srcM = DEFAULT_MILES.find(x=>x.n===m.n); const att = (srcM&&srcM.att)||[];
-    const dn  = sub.filter(s=>s.done).length;
-    const all = sub.length;
-    const isOpen = openMile.has(m.id);
-    const auto = all && dn===all;
-    return `
+  const ups = pathUpdates();
+  const tools = document.getElementById('pathTools');
+  if(tools) tools.innerHTML = (ups.length ? updatesHtml(ups) : '') +
+    `<div class="row" style="margin:0 0 6px">
+       <button class="btn ${editPath?'':'ghost'}" onclick="togglePathEdit()">${editPath?'✓ Готово':'✏️ Редактировать путь'}</button>
+       ${editPath?'<button class="btn ghost" onclick="addStep()">+ Добавить шаг</button>':''}
+     </div>
+     ${editPath?'<div class="hint" style="margin:0 0 8px">↑ ↓ — порядок шагов, ✏️ — изменить шаг и его подпункты, 🗑 — удалить. Правки хранятся на этом устройстве; на другое их переносят кнопки «Выгрузить» и «Загрузить состояние» во вкладке «Данные».</div>':''}`;
+  document.getElementById('mileList').innerHTML =
+    S.miles.map((m,mi)=> (editPath && m.id===editStep) ? editHtml(m,mi) : stepHtml(m,mi)).join('');
+}
+function stepHtml(m, mi){
+  const sub = m.sub||[];
+  const dn  = sub.filter(s=>s.done).length;
+  const all = sub.length;
+  const isOpen = openMile.has(m.id);
+  const auto = all && dn===all;
+  const srcM = DEFAULT_MILES.find(x=>x.k && x.k===m.k); const att = (srcM&&srcM.att)||[];
+  const ctrl = editPath ? `<div class="ed-ctrl" onclick="event.stopPropagation()">
+      <button class="mini" onclick="moveStep(${mi},-1)">↑</button><button class="mini" onclick="moveStep(${mi},1)">↓</button>
+      <button class="mini" onclick="startEdit(${mi})">✏️</button><button class="mini" onclick="delStep(${mi})">🗑</button></div>` : '';
+  return `
     <div class="step ${m.done||auto?'done':''}">
       <div class="step-head" onclick="toggleMileOpen('${m.id}')">
         <div class="dot" onclick="event.stopPropagation();toggleMile('${m.id}')"></div>
@@ -1079,7 +1131,7 @@ function renderMiles(){
           ${all?`<div class="sub-bar"><i style="width:${Math.round(dn/all*100)}%"></i></div>
                  <div class="sub-count">${dn} из ${all}</div>`:''}
         </div>
-        ${all?`<div class="chev ${isOpen?'up':''}">▾</div>`:''}
+        ${ctrl || (all?`<div class="chev ${isOpen?'up':''}">▾</div>`:'')}
       </div>
       ${isOpen&&all?`<div class="sub-list">
         ${m.why?`<div class="why"><div class="why-t">Зачем этот шаг</div>${esc(m.why)}</div>`:''}
@@ -1094,11 +1146,179 @@ function renderMiles(){
           ${o?`<div class="att-body">${esc(a.text)}</div>`:''}</div>`;}).join('')}`:''}
       </div>`:''}
     </div>`;
-  }).join('');
+}
+function editHtml(m, mi){
+  return `<div class="step"><div class="ed-form">
+    <label class="ed-l">Название шага</label><input class="ed-in" id="edN" value="${esc(draft.n)}">
+    <label class="ed-l">Срок и деньги (строка под названием)</label><input class="ed-in" id="edD" value="${esc(draft.d)}">
+    <label class="ed-l">Зачем этот шаг</label><textarea id="edW">${esc(draft.why)}</textarea>
+    <label class="ed-l">Подпункты</label>
+    ${draft.sub.map((s,i)=>`<div class="ed-sub"><input class="ed-in" id="edS${i}" value="${esc(s.t)}">
+      <button class="mini" onclick="draftSub('up',${i})">↑</button><button class="mini" onclick="draftSub('down',${i})">↓</button>
+      <button class="mini" title="Перенести в другой шаг" onclick="draftSub('pick',${i})">↪</button>
+      <button class="mini" onclick="draftSub('del',${i})">🗑</button></div>
+      ${draft.pick===i ? `<select class="ed-in" style="margin:0 0 8px" onchange="moveSubTo(${i}, this.value)">
+        <option value="">В какой шаг перенести?</option>
+        ${S.miles.filter(x=>x.id!==editStep).map(x=>`<option value="${esc(x.id)}">${esc(x.n)}</option>`).join('')}
+      </select>` : ''}`).join('')}
+    <div class="row"><button class="btn ghost" onclick="draftSub('add')">+ Подпункт</button></div>
+    <div class="row"><button class="btn" onclick="saveEdit()">Сохранить</button><button class="btn ghost" onclick="cancelEdit()">Отмена</button></div>
+  </div></div>`;
 }
 
+/* ---------- Редактирование пути ---------- */
+let editPath = false, editStep = null, draft = null;
+function togglePathEdit(){
+  if(editPath && editStep && !confirm('Закрыть без сохранения изменений в открытом шаге?')) return;
+  editPath = !editPath; editStep = null; draft = null; renderMiles();
+}
+function moveStep(i, dir){
+  const j = i+dir; if(j<0 || j>=S.miles.length) return;
+  [S.miles[i], S.miles[j]] = [S.miles[j], S.miles[i]];
+  save(); renderMiles(); renderProgress();
+}
+function delStep(i){
+  if(!confirm('Удалить шаг «'+S.miles[i].n+'»? Его подпункты и галочки тоже удалятся.')) return;
+  S.miles.splice(i,1); save(); renderMiles(); renderProgress();
+}
+function addStep(){
+  if(editStep && !confirm('Закрыть без сохранения изменений в открытом шаге?')) return;
+  const k = 'u'+Date.now();
+  S.miles.push({k, id:k, n:'Новый шаг', d:'', why:'', done:false, sub:[]});
+  save(); editStep=null; startEdit(S.miles.length-1);
+}
+function startEdit(i){
+  if(editStep && editStep!==S.miles[i].id && !confirm('Закрыть без сохранения изменений в открытом шаге?')) return;
+  const m = S.miles[i];
+  editStep = m.id;
+  draft = {n:m.n||'', d:m.d||'', why:m.why||'', sub:(m.sub||[]).map(s=>({...s}))};
+  renderMiles();
+  const el = document.getElementById('edN'); if(el) el.focus();
+}
+function readDraft(){
+  const g = id => document.getElementById(id);
+  if(!draft || !g('edN')) return;
+  draft.n = g('edN').value; draft.d = g('edD').value; draft.why = g('edW').value;
+  draft.sub.forEach((s,i)=>{ const el=g('edS'+i); if(el) s.t = el.value; });
+}
+function draftSub(op, i){
+  readDraft();
+  if(op==='pick'){ draft.pick = draft.pick===i ? null : i; renderMiles(); return; }
+  draft.pick = null;
+  if(op==='add') draft.sub.push({t:'', done:false, u:true});
+  if(op==='del') draft.sub.splice(i,1);
+  if(op==='up' && i>0) [draft.sub[i-1], draft.sub[i]] = [draft.sub[i], draft.sub[i-1]];
+  if(op==='down' && i<draft.sub.length-1) [draft.sub[i+1], draft.sub[i]] = [draft.sub[i], draft.sub[i+1]];
+  renderMiles();
+  if(op==='add'){ const el=document.getElementById('edS'+(draft.sub.length-1)); if(el) el.focus(); }
+}
+function saveEdit(){
+  readDraft();
+  const m = S.miles.find(x=>x.id===editStep); if(!m) return;
+  const n = draft.n.trim(); if(!n){ toast('У шага должно быть название'); return; }
+  m.n = n; m.d = draft.d.trim(); m.why = draft.why.trim();
+  m.sub = draft.sub.filter(s=>s.t.trim()).map(s=>({...s, t:s.t.trim()}));
+  if(m.sub.length) m.done = m.sub.every(s=>s.done);
+  editStep = null; draft = null;
+  save(); renderMiles(); renderProgress(); toast('Сохранено');
+}
+function moveSubTo(i, targetId){
+  if(!targetId) return;
+  readDraft();
+  const target = S.miles.find(x=>x.id===targetId); if(!target) return;
+  const s = draft.sub.splice(i,1)[0]; draft.pick = null;
+  if(s && s.t.trim()){
+    target.sub = target.sub || [];
+    target.sub.push({...s, t:s.t.trim()});
+    target.done = target.sub.every(x=>x.done);
+  }
+  const cur = S.miles.findIndex(x=>x.id===editStep);
+  renderMiles();                    // поля на экране должны соответствовать черновику, иначе readDraft перепутает тексты
+  saveEdit();                       // сохраняем и текущий шаг, чтобы подпункт не задвоился
+  startEdit(cur);                   // и остаёмся в нём
+  toast('Подпункт перенесён в «'+target.n+'» — в конец списка');
+}
+function cancelEdit(){ editStep = null; draft = null; renderMiles(); }
+
+/* ---------- Обновления пути от помощника: принять или оставить своё ---------- */
+function snapStep(m){ return {n:m.n||'', d:m.d||'', why:m.why||'', sub:(m.sub||[]).map(s=>s.t)}; }
+function snapDefaults(){ const o={}; DEFAULT_MILES.forEach(m=>{ o[m.k]=snapStep(m); }); return o; }
+function diffBase(){
+  if(!S || !S.base) return [];
+  const nw = snapDefaults(), out = [];
+  const keys = [...new Set([...DEFAULT_MILES.map(m=>m.k), ...Object.keys(S.base)])];
+  keys.forEach(k=>{
+    const a = S.base[k], b = nw[k];
+    if(JSON.stringify(a) === JSON.stringify(b)) return;
+    out.push({k, type: !a ? 'add' : (!b ? 'del' : 'mod'), a, b});
+  });
+  return out;
+}
+function pathUpdates(){ return (S && S.base && S.milesTextVer !== MILES_TEXT_VERSION) ? diffBase() : []; }
+function updatesHtml(ups){
+  const li = arr => arr.length ? '<ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>' : '';
+  const desc = u => {
+    if(u.type==='add') return `<b>Новый шаг:</b> ${esc(u.b.n)}`+li(u.b.sub.map(esc));
+    if(u.type==='del') return `<b>Помощник убрал шаг:</b> ${esc(u.a.n)}`;
+    const ch = [];
+    if(u.a.n!==u.b.n) ch.push('Название: было «'+esc(u.a.n)+'»');
+    if(u.a.d!==u.b.d) ch.push('Срок и деньги: «'+esc(u.b.d)+'»');
+    if(u.a.why!==u.b.why) ch.push('Новое пояснение «Зачем этот шаг»');
+    u.b.sub.filter(t=>!u.a.sub.includes(t)).forEach(t=>ch.push('+ '+esc(t)));
+    u.a.sub.filter(t=>!u.b.sub.includes(t)).forEach(t=>ch.push('− '+esc(t)));
+    if(!ch.length) ch.push('Изменён порядок подпунктов');
+    return `<b>Изменён шаг:</b> ${esc(u.b.n)}`+li(ch);
+  };
+  return `<div class="upd"><div class="upd-t">Помощник обновил путь: изменений — ${ups.length}</div>
+    <div class="hint" style="margin:4px 0 6px">Для каждого выберите: принять или оставить как у вас. Галочки сохраняются.</div>
+    ${ups.map(u=>`<div class="upd-i">${desc(u)}<div class="row" style="margin-top:6px">
+      <button class="btn" onclick="acceptUpdate('${u.k}')">Принять</button>
+      <button class="btn ghost" onclick="keepMine('${u.k}')">Оставить моё</button></div></div>`).join('')}
+    <div class="row"><button class="btn ghost" onclick="acceptAll()">Принять всё</button>
+      <button class="btn ghost" onclick="keepAll()">Оставить всё моё</button></div></div>`;
+}
+function subsFromDefault(src, old){
+  const ss = src.sub || [];
+  const byText = {};
+  (old||[]).forEach(s => { if(s && s.t) byText[s.t] = !!s.done; });
+  const newTexts = new Set(ss.map(s => s.t));
+  const res = ss.map((s,k) => {
+    let done = false;
+    if(Object.prototype.hasOwnProperty.call(byText, s.t)) done = byText[s.t];
+    else if(old && old[k] && !old[k].u && !newTexts.has(old[k].t)) done = !!old[k].done;
+    return {t:s.t, done};
+  });
+  (old||[]).filter(s => s && s.u && !newTexts.has(s.t)).forEach(s => res.push({...s}));
+  return res;
+}
+function applyUpdate(k, accept){
+  const u = diffBase().find(x=>x.k===k); if(!u) return;
+  if(accept){
+    const src = DEFAULT_MILES.find(m=>m.k===k);
+    const i = S.miles.findIndex(m=>m.k===k);
+    if(u.type==='del'){ if(i>=0) S.miles.splice(i,1); }
+    else if(i<0){
+      const di = DEFAULT_MILES.findIndex(m=>m.k===k); let pos = S.miles.length;
+      for(let j=di-1;j>=0;j--){ const pi=S.miles.findIndex(m=>m.k===DEFAULT_MILES[j].k); if(pi>=0){ pos=pi+1; break; } }
+      S.miles.splice(pos, 0, {k, id:k, n:src.n, d:src.d, why:src.why, done:false, sub:subsFromDefault(src, [])});
+    } else {
+      const m = S.miles[i]; m.n=src.n; m.d=src.d; m.why=src.why; m.sub=subsFromDefault(src, m.sub);
+    }
+  }
+  const nw = snapDefaults();
+  if(nw[k]) S.base[k] = nw[k]; else delete S.base[k];
+}
+function finishUpdates(){
+  if(!diffBase().length) S.milesTextVer = MILES_TEXT_VERSION;
+  save(); renderMiles(); renderProgress();
+}
+function acceptUpdate(k){ applyUpdate(k, true); finishUpdates(); }
+function keepMine(k){ applyUpdate(k, false); finishUpdates(); }
+function acceptAll(){ diffBase().forEach(u=>applyUpdate(u.k, true)); finishUpdates(); }
+function keepAll(){ diffBase().forEach(u=>applyUpdate(u.k, false)); finishUpdates(); }
+
 let openAtt = new Set();
-function attOf(mi, ai){ const m=S.miles[mi]; const src=DEFAULT_MILES.find(x=>x.n===m.n); return src&&src.att ? src.att[ai] : null; }
+function attOf(mi, ai){ const m=S.miles[mi]; const src=DEFAULT_MILES.find(x=>x.k && x.k===m.k); return src&&src.att ? src.att[ai] : null; }
 function toggleAtt(mi, ai){ const k=mi+'-'+ai; openAtt.has(k)?openAtt.delete(k):openAtt.add(k); renderMiles(); }
 function copyAtt(mi, ai){
   const a = attOf(mi, ai); if(!a) return;
@@ -1262,7 +1482,7 @@ function importData(ev){
     try{
       const d=JSON.parse(r.result);
       if(!d.tasks||!d.miles) throw 0;
-      S=d; save(); renderAll();
+      S=d; migrate(); refreshMileTexts(); save(); renderAll();
       alert('Состояние загружено.');
     }catch(e){ alert('Не получилось прочитать файл. Нужен тот, что скачался кнопкой «Выгрузить состояние».'); }
   };
@@ -1283,7 +1503,7 @@ function b64ToBytes(s){const b=atob(s);const u=new Uint8Array(b.length);for(let 
 async function docsKey(pass){
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({name:'PBKDF2', salt:hexToBytes(DOCS_SALT), iterations:DOCS_ITER, hash:'SHA-256'},
-    base, {name:'AES-GCM', length:256}, false, ['decrypt']);
+    base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
 }
 async function docsDecrypt(key, bytes){
   return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv:bytes.slice(0,12)}, key, bytes.slice(12)));
@@ -1320,6 +1540,7 @@ function renderDocs(){
       <button class="btn ghost" onclick="readDoc(${pi},${di})">Читать</button>
       ${(!DOCS_INLINE && d.w) ? `<button class="btn ghost" onclick="wordDoc(${pi},${di})">Word</button>` : ''}
     </div>`).join('')}</div>`).join('');
+  filesRender();
 }
 function readDoc(pi, di){
   const d = DOCS.products[pi].docs[di];
@@ -1344,12 +1565,261 @@ async function wordDoc(pi, di){
   }catch(e){ toast('Не удалось скачать файл. Нужен интернет.'); }
 }
 function lockDocs(){
-  DOCS = null; DOCS_KEY = null;
+  DOCS = null; DOCS_KEY = null; FILES = null; FILES_SHA = null;
   document.getElementById('docView').innerHTML = '';
   document.getElementById('docsBox').innerHTML = '';
   document.getElementById('docsList').classList.add('hide');
   document.getElementById('docsRead').classList.add('hide');
   document.getElementById('docsLock').classList.remove('hide');
+}
+
+/* ======================= СИНХРОНИЗАЦИЯ С GITHUB ======================= */
+const SYNC_REPO = 'ooppanki2021-hash/dubina-arhiv';
+const SYNC_BRANCH = 'sostoyanie';
+const SYNC_PATH = 'sostoyanie.bin';
+const SYNC_SALT = '';
+const SYNC_ITER = 1000000;
+const SYNC_TOKEN_ENC = '';
+const SYNC_LS = 'dubrava_sync_key_v1';
+let syncKey = null, syncToken = null, syncSha = null, syncTimer = null, syncReady = false,
+    syncLastJSON = null, syncInfo = '', syncBusy = false, syncDirty = false;
+function bytesToB64(u){ let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s); }
+function stateJSON(){ const c = {...S}; delete c.updatedAt; return JSON.stringify(c); }
+async function syncImport(raw){ return crypto.subtle.importKey('raw', raw, {name:'AES-GCM'}, false, ['encrypt','decrypt']); }
+async function syncDeriveRaw(pass){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveBits']);
+  return new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2', salt:hexToBytes(SYNC_SALT), iterations:SYNC_ITER, hash:'SHA-256'}, base, 256));
+}
+async function syncEnc(obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM', iv}, syncKey, new TextEncoder().encode(JSON.stringify(obj))));
+  const out = new Uint8Array(12+ct.length); out.set(iv); out.set(ct,12); return btoa(bytesToB64(out)); // в файле — текст base64: двоичное GitHub может перекодировать
+}
+async function syncDec(b64){ return JSON.parse(new TextDecoder().decode(await docsDecrypt(syncKey, b64ToBytes(atob(b64.replace(/\s/g,'')).trim())))); }
+async function syncApi(method, body){
+  const url = `https://api.github.com/repos/${SYNC_REPO}/contents/${SYNC_PATH}` + (method==='GET' ? `?ref=${SYNC_BRANCH}` : '');
+  const headers = {'Authorization':'Bearer '+syncToken, 'Accept':'application/vnd.github+json'};
+  if(body) headers['Content-Type'] = 'application/json';
+  return fetch(url, {method, cache:'no-store', headers, body: body ? JSON.stringify(body) : undefined});
+}
+async function syncPull(){
+  const r = await syncApi('GET');
+  if(r.status === 404){ syncSha = null; return null; }
+  if(!r.ok) throw new Error('pull '+r.status);
+  const j = await r.json(); syncSha = j.sha;
+  return await syncDec(j.content);
+}
+async function syncPush(retry){
+  const body = {message:'Состояние приложения — '+new Date().toLocaleString('ru-RU'), content: await syncEnc(S), branch: SYNC_BRANCH};
+  if(syncSha) body.sha = syncSha;
+  const r = await syncApi('PUT', body);
+  if(r.ok){
+    const j = await r.json(); syncSha = j.content.sha; syncDirty = false;
+    syncInfo = 'Отправлено на GitHub в '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    return;
+  }
+  if((r.status===409 || r.status===422) && !retry){
+    const remote = await syncPull();
+    if(remote && (remote.updatedAt||0) > (S.updatedAt||0)){ syncApply(remote, 'На другом устройстве изменения новее — загружены они'); syncDirty = false; return; }
+    return syncPush(true);
+  }
+  throw new Error('push '+r.status);
+}
+function syncApply(remote, msg){
+  const was = syncReady; syncReady = false;
+  S = remote; migrate(); refreshMileTexts(); saveLocal();
+  syncLastJSON = stateJSON(); syncReady = was;
+  syncInfo = 'Загружено с GitHub в '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  renderAll(); if(msg) toast(msg);
+}
+function syncSchedule(){
+  syncDirty = true; clearTimeout(syncTimer); syncTimer = setTimeout(syncFlush, 4000);
+  renderSync('Есть изменения — отправлю через пару секунд…');
+}
+async function syncFlush(){
+  clearTimeout(syncTimer); syncTimer = null;
+  if(!syncKey) return;
+  if(syncBusy){ syncTimer = setTimeout(syncFlush, 2000); return; }
+  syncBusy = true;
+  try{ await syncPush(); renderSync(); }
+  catch(e){ renderSync('⚠️ Не удалось отправить (нет интернета?). Отправлю, когда связь появится.'); }
+  finally{ syncBusy = false; }
+}
+async function syncStart(first){
+  try{
+    renderSync('Проверяю GitHub…');
+    const remote = await syncPull();
+    if(remote){
+      if(first){
+        const when = remote.updatedAt ? new Date(remote.updatedAt).toLocaleString('ru-RU') : 'неизвестно когда';
+        if(confirm('На GitHub уже есть состояние (изменено '+when+').\n\nОК — загрузить его на это устройство (здешние галочки и заметки заменятся).\nОтмена — отправить это устройство на GitHub (заменит то, что там).'))
+          syncApply(remote, 'Загружено с GitHub');
+        else { S.updatedAt = Date.now(); saveLocal(); await syncPush(); }
+      } else if((remote.updatedAt||0) > (S.updatedAt||0)) syncApply(remote, 'Загружена актуальная версия с GitHub');
+      else if((S.updatedAt||0) > (remote.updatedAt||0)) await syncPush();
+      else syncInfo = 'Всё совпадает с GitHub';
+    } else { S.updatedAt = S.updatedAt || Date.now(); saveLocal(); await syncPush(); }
+    syncLastJSON = stateJSON(); syncReady = true; renderSync(); if(DOCS_KEY) filesRender();
+  }catch(e){
+    syncLastJSON = stateJSON(); syncReady = true; syncDirty = true;
+    renderSync('⚠️ GitHub недоступен (нет интернета?). Изменения сохранятся здесь и уйдут позже.');
+  }
+}
+async function syncInit(){
+  renderSync();
+  const raw = localStorage.getItem(SYNC_LS);
+  if(!raw || !SYNC_TOKEN_ENC || !window.crypto || !crypto.subtle) return;
+  try{
+    syncKey = await syncImport(b64ToBytes(raw));
+    syncToken = new TextDecoder().decode(await docsDecrypt(syncKey, b64ToBytes(SYNC_TOKEN_ENC)));
+  }catch(e){ localStorage.removeItem(SYNC_LS); syncKey = null; renderSync('⚠️ Пароль синхронизации сменился — подключите заново.'); return; }
+  await syncStart(false);
+}
+async function syncConnect(){
+  const pass = document.getElementById('syncPass').value;
+  if(!pass){ renderSync('Введите пароль.'); return; }
+  if(!SYNC_TOKEN_ENC){ renderSync('Синхронизация ещё не настроена.'); return; }
+  if(!window.crypto || !crypto.subtle){ renderSync('Здесь синхронизация не работает. Откройте https://zapahstarosti.ru/app/'); return; }
+  renderSync('Проверяю пароль — пару секунд…');
+  try{
+    const raw = await syncDeriveRaw(pass);
+    syncKey = await syncImport(raw);
+    syncToken = new TextDecoder().decode(await docsDecrypt(syncKey, b64ToBytes(SYNC_TOKEN_ENC)));
+    localStorage.setItem(SYNC_LS, bytesToB64(raw));
+  }catch(e){ syncKey = null; renderSync('Неверный пароль.'); return; }
+  document.getElementById('syncPass').value = '';
+  await syncStart(true);
+}
+function syncDisconnect(){
+  if(!confirm('Отключить синхронизацию на этом устройстве? Данные здесь останутся.')) return;
+  localStorage.removeItem(SYNC_LS); syncKey = null; syncToken = null; syncReady = false; syncInfo = ''; renderSync();
+}
+async function syncNow(){
+  if(!syncKey) return;
+  if(syncTimer || syncDirty){ await syncFlush(); return; }
+  syncReady = false; await syncStart(false);
+}
+function renderSync(msg){
+  const st = document.getElementById('syncStatus'); if(!st) return;
+  if(!SYNC_TOKEN_ENC){ // токен ещё не вшит — синхронизация готовится
+    document.getElementById('syncConnectRow').classList.add('hide'); document.getElementById('syncOnRow').classList.add('hide');
+    st.innerHTML = '⏳ Синхронизация между устройствами скоро включится. Пока данные хранятся на этом устройстве — переносите их через «Экспорт / Импорт».';
+    return;
+  }
+  const on = !!syncKey;
+  document.getElementById('syncConnectRow').classList.toggle('hide', on);
+  document.getElementById('syncOnRow').classList.toggle('hide', !on);
+  if(msg !== undefined) syncInfo = msg;
+  st.innerHTML = on ? '🔄 <b>Синхронизация включена.</b> '+esc(syncInfo||'')
+                    : (syncInfo ? esc(syncInfo)+'<br>' : '')+'Синхронизация на этом устройстве выключена.';
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState!=='visible' || !syncReady || !syncKey || syncBusy) return;
+  if(syncDirty){ syncFlush(); return; }
+  syncPull().then(r=>{ if(r && (r.updatedAt||0) > (S.updatedAt||0)) syncApply(r, 'Загружена актуальная версия с GitHub'); }).catch(()=>{});
+});
+window.addEventListener('online', ()=>{ if(syncDirty && syncKey) syncFlush(); });
+
+/* ======================= МОИ ФАЙЛЫ (загрузка в документы, шифруются паролем документов) ======================= */
+const FILES_DIR = 'faily';
+const FILES_MAX = 15*1024*1024;
+let FILES = null, FILES_SHA = null;
+function ghUrl(p){ return `https://api.github.com/repos/${SYNC_REPO}/contents/${p}`; }
+function ghHead(raw){ return {'Authorization':'Bearer '+syncToken, 'Accept': raw ? 'application/vnd.github.raw+json' : 'application/vnd.github+json', 'Content-Type':'application/json'}; }
+function ghGet(p, raw){ return fetch(ghUrl(p)+'?ref='+SYNC_BRANCH, {cache:'no-store', headers:ghHead(raw)}); }
+function ghPut(p, b64, msg, sha){ const b = {message:msg, content:b64, branch:SYNC_BRANCH}; if(sha) b.sha = sha; return fetch(ghUrl(p), {method:'PUT', headers:ghHead(), body:JSON.stringify(b)}); }
+function ghDel(p, sha, msg){ return fetch(ghUrl(p), {method:'DELETE', headers:ghHead(), body:JSON.stringify({message:msg, sha, branch:SYNC_BRANCH})}); }
+async function docsEncB64(bytes){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM', iv}, DOCS_KEY, bytes));
+  const out = new Uint8Array(12+ct.length); out.set(iv); out.set(ct,12); return btoa(bytesToB64(out)); // в файле — текст base64: двоичное GitHub может перекодировать
+}
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtSize(n){ return n < 1024*1024 ? Math.max(1,Math.round(n/1024))+' КБ' : (n/1024/1024).toFixed(1).replace('.',',')+' МБ'; }
+async function filesLoad(quiet){
+  const r = await ghGet(FILES_DIR+'/spisok.bin');
+  if(r.status === 404){ FILES = []; FILES_SHA = null; }
+  else if(!r.ok) throw new Error('список '+r.status);
+  else { const j = await r.json(); FILES_SHA = j.sha;
+    FILES = JSON.parse(new TextDecoder().decode(await docsDecrypt(DOCS_KEY, b64ToBytes(atob(j.content.replace(/\s/g,'')).trim())))); }
+  if(!quiet) filesRender();
+}
+async function filesSaveList(){
+  const r = await ghPut(FILES_DIR+'/spisok.bin', await docsEncB64(new TextEncoder().encode(JSON.stringify(FILES))), 'Список файлов документов', FILES_SHA);
+  if(!r.ok) throw new Error('список '+r.status);
+  FILES_SHA = (await r.json()).content.sha;
+}
+function filesRender(){
+  const box = document.getElementById('filesBox'), up = document.getElementById('filesUpRow');
+  document.getElementById('docWordBtn').classList.remove('hide');
+  if(!box || !DOCS_KEY) return;
+  if(!syncKey){
+    up.classList.add('hide');
+    box.innerHTML = 'Сюда можно загружать свои файлы — сертификаты, договоры, протоколы, фото, сканы. '+
+      'Они шифруются паролем документов и видны на всех устройствах. Для этого включите синхронизацию во вкладке «Данные».';
+    return;
+  }
+  up.classList.remove('hide');
+  if(FILES === null){
+    box.textContent = 'Загружаю список…';
+    filesLoad().catch(()=>{ box.textContent = '⚠️ Не удалось получить список файлов (нет интернета?).'; });
+    return;
+  }
+  box.innerHTML = FILES.length ? FILES.map(f=>`<div class="doc-row"><span>${esc(f.name)} <small style="opacity:.6">· ${fmtSize(f.size)} · ${esc(f.date)}</small></span>
+      <button class="btn ghost" onclick="openFile('${f.id}')">Открыть</button>
+      <button class="btn ghost" onclick="delFile('${f.id}')">Удалить</button></div>`).join('')
+    : 'Пока нет загруженных файлов. Подойдёт любой: PDF, Word, Excel, фото.';
+}
+async function uploadFiles(list){
+  const msg = document.getElementById('filesMsg');
+  if(!syncKey || !DOCS_KEY) return;
+  const errs = [];
+  for(const f of Array.from(list)){
+    if(f.size > FILES_MAX){ errs.push('«'+f.name+'» больше 15 МБ'); continue; }
+    msg.textContent = 'Загружаю «'+f.name+'»…';
+    try{
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+      const r = await ghPut(`${FILES_DIR}/${id}.bin`, await docsEncB64(bytes), 'Файл в документы', null);
+      if(!r.ok) throw new Error('код '+r.status);
+      const sha = (await r.json()).content.sha;
+      await filesLoad(true);
+      FILES.unshift({id, name:f.name, type:f.type||'', size:f.size, date:todayStr(), sha});
+      await filesSaveList();
+    }catch(e){ errs.push('«'+f.name+'» не загрузился ('+e.message+')'); }
+  }
+  document.getElementById('fileIn').value = '';
+  msg.textContent = errs.length ? '⚠️ '+errs.join('; ') : 'Готово — файл виден на всех устройствах.';
+  filesRender();
+}
+async function openFile(id){
+  const f = (FILES||[]).find(x=>x.id===id); if(!f) return;
+  const view = document.getElementById('docView');
+  document.getElementById('docsList').classList.add('hide');
+  document.getElementById('docsRead').classList.remove('hide');
+  document.getElementById('docWordBtn').classList.add('hide');
+  view.innerHTML = 'Загружаю…';
+  try{
+    const r = await ghGet(`${FILES_DIR}/${id}.bin`, true); if(!r.ok) throw new Error('код '+r.status);
+    const plain = await docsDecrypt(DOCS_KEY, b64ToBytes((await r.text()).trim()));
+    const url = URL.createObjectURL(new Blob([plain], {type: f.type || 'application/octet-stream'}));
+    let inner;
+    if(/^image\//.test(f.type)) inner = `<img src="${url}" alt="" style="max-width:100%;border-radius:8px">`;
+    else if(f.type === 'application/pdf') inner = `<iframe src="${url}" style="width:100%;height:70vh;border:0"></iframe>`;
+    else if(/^text\//.test(f.type)) inner = `<pre style="white-space:pre-wrap">${esc(new TextDecoder().decode(plain))}</pre>`;
+    else inner = '<p>Такой файл здесь не показывается — скачайте его и откройте на устройстве.</p>';
+    view.innerHTML = `<h3>${esc(f.name)}</h3><p><a class="btn" href="${url}" download="${esc(f.name)}">Скачать</a></p>` + inner;
+  }catch(e){ view.innerHTML = '⚠️ Не удалось открыть файл ('+esc(e.message)+').'; }
+}
+async function delFile(id){
+  const f = (FILES||[]).find(x=>x.id===id);
+  if(!f || !confirm('Удалить «'+f.name+'» со всех устройств?')) return;
+  try{
+    await filesLoad(true); FILES = FILES.filter(x=>x.id!==id); await filesSaveList();
+    await ghDel(`${FILES_DIR}/${id}.bin`, f.sha, 'Удалён файл из документов');
+    toast('Файл удалён');
+  }catch(e){ toast('⚠️ Не удалось удалить (нет интернета?)'); }
+  filesRender();
 }
 
 /* ======================= ВКЛАДКИ ======================= */
@@ -1363,7 +1833,8 @@ document.querySelectorAll('nav button').forEach(b=>{
 });
 
 /* ======================= СТАРТ ======================= */
-load(); renderAll();
+load(); renderAll(); syncInit();
+if(pathUpdates().length) setTimeout(()=>toast('Помощник обновил путь — загляните во вкладку «Путь»'), 1200);
 document.getElementById('newDate').value = todayISO();
 </script>
 </body>

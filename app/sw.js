@@ -1,4 +1,4 @@
-const CACHE = 'mechta-v17';
+const CACHE = 'mechta-v18';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './docs/docs.bin'];
 
 self.addEventListener('install', e => {
@@ -14,6 +14,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  if (new URL(e.request.url).origin !== self.location.origin) return; // GitHub (синхронизация, файлы) — всегда из сети
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
       const copy = res.clone();
