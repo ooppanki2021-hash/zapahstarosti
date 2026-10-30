@@ -270,6 +270,7 @@
 
 <script>
 (function(){
+  var mq = window.matchMedia('(max-width:960px)');
   var btn = document.getElementById('menuToggle');
   var nav = document.querySelector('.nav');
   var backdrop = document.getElementById('menuBackdrop');
@@ -279,20 +280,31 @@
     backdrop.className = 'menu-backdrop';
     document.body.appendChild(backdrop);
   }
-  
-  // Выносим nav в body, чтобы z-index хедера не влиял на наложение
-  if(nav && nav.parentElement !== document.body){
-    document.body.appendChild(nav);
-  }
-  
-  if(nav && !nav.querySelector('.nav-header-mobile')){
-    var h = document.createElement('div');
-    h.className = 'nav-header-mobile';
-    h.innerHTML = '<span class="nav-header-title">Меню</span><button class="nav-close-btn" id="navCloseBtn" aria-label="Закрыть">✕</button>';
-    nav.insertBefore(h, nav.firstChild);
-    var closeBtn = document.getElementById('navCloseBtn');
-    if(closeBtn){
-      closeBtn.onclick = function(e){ e.stopPropagation(); closeNav(); };
+
+  function placeNav(){
+    if(!nav) return;
+    if(mq.matches){
+      if(nav.parentElement !== document.body){
+        document.body.appendChild(nav);
+      }
+      if(!nav.querySelector('.nav-header-mobile')){
+        var h = document.createElement('div');
+        h.className = 'nav-header-mobile';
+        h.innerHTML = '<span class="nav-header-title">Меню</span><button class="nav-close-btn" id="navCloseBtn" aria-label="Закрыть">\u2715</button>';
+        nav.insertBefore(h, nav.firstChild);
+        var closeBtn = nav.querySelector('#navCloseBtn');
+        if(closeBtn){ closeBtn.onclick = function(e){ e.stopPropagation(); closeNav(); }; }
+      }
+    } else {
+      var holder = document.querySelector('.header-inner');
+      if(holder && nav.parentElement !== holder){
+        holder.insertBefore(nav, (btn && btn.parentElement === holder) ? btn : null);
+      }
+      var mh = nav.querySelector('.nav-header-mobile');
+      if(mh){ mh.remove(); }
+      nav.classList.remove('open');
+      if(backdrop) backdrop.classList.remove('open');
+      document.body.style.overflow = '';
     }
   }
 
@@ -336,6 +348,9 @@
       }
     }
   });
+
+  placeNav();
+  if(mq.addEventListener){ mq.addEventListener('change', placeNav); } else if(mq.addListener){ mq.addListener(placeNav); }
 })();
 </script>
 <!--CONSENT-START-->
