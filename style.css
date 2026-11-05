@@ -270,3 +270,11 @@ p{margin:0 0 16px}
 .article-body table{width:100%; border-collapse:collapse; margin:14px 0}
 .article-body th,.article-body td{padding:9px 11px; border:1px solid #e0d8c8; text-align:left; vertical-align:top}
 .article-body th{background:#f7f3ea; font-weight:600}
+
+/* --- каталог дочерних разделов (05.11.2026) --- */
+.cat{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:14px 0 10px}
+.cat-card{display:block; text-decoration:none; color:inherit; background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px 14px}
+.cat-card:hover{border-color:var(--blue)}
+.cat-card b{display:block; font-family:-apple-system, sans-serif; font-size:14px; font-weight:600; color:var(--blue-dark); margin-bottom:3px; line-height:1.35}
+.cat-card span{display:block; font-family:-apple-system, sans-serif; font-size:12.5px; line-height:1.45; color:var(--text-light)}
+@media(max-width:560px){.cat{grid-template-columns:1fr}}
